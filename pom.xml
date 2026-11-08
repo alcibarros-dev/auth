@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
+    <!-- Agregador e pai dos módulos. O servidor vira a imagem ghcr.io/alcibarros-dev/auth; o auth-security-api e o
+         auth-security são as bibliotecas das APIs que validam os tokens dele. -->
+    <groupId>dev.alcibarros</groupId>
+    <artifactId>auth-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>auth-parent</name>
+    <description>Servidor de autorização OAuth 2 e OpenID Connect e as bibliotecas de validação dos tokens</description>
+
+    <modules>
+        <module>support</module>
+        <module>security-api</module>
+        <module>security</module>
+        <module>server</module>
+        <module>coverage</module>
+    </modules>
+
+    <properties>
+        <java.version>25</java.version>
+        <springdoc.version>3.2.0</springdoc.version>
+        <jacoco.version>0.8.16</jacoco.version>
+        <jacoco.minimum-line-coverage>0.80</jacoco.minimum-line-coverage>
+        <!-- Só o servidor roda com spring-boot:run: ./mvnw -pl server -am spring-boot:run -->
+        <spring-boot.run.skip>true</spring-boot.run.skip>
+    </properties>
+
+    <!-- As bibliotecas (auth-support, auth-security-api, auth-security) e este pom são publicados no GitHub Packages a
+         cada tag vX.Y.Z; o servidor sai como imagem, e o coverage não é publicado. Para baixar, mesmo com o pacote
+         público, o GitHub Packages exige um token com read:packages (ver README). -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/alcibarros-dev/auth</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.alcibarros</groupId>
+                <artifactId>auth-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.alcibarros</groupId>
+                <artifactId>auth-security-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.alcibarros</groupId>
+                <artifactId>auth-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.alcibarros</groupId>
+                <artifactId>auth-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-common</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- O spring-boot:run roda na raiz, onde está o compose.yaml do perfil "local" -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>dev/alcibarros/auth/server/AuthServerApplication.class</exclude>
+                            <exclude>dev/alcibarros/auth/**/*Config.class</exclude>
+                            <exclude>dev/alcibarros/auth/**/*AutoConfiguration.class</exclude>
+                            <exclude>dev/alcibarros/auth/**/*Properties.class</exclude>
+                            <exclude>dev/alcibarros/auth/**/*Properties$*.class</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- Expõe o caminho do jar do Mockito para carregá-lo como agente (sem "dynamic agent loading") -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
+                </configuration>
+            </plugin>
+            <!-- Cada módulo gera o seu jacoco.exec; o módulo coverage junta todos e aplica o mínimo -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring-boot.run.profiles>local</spring-boot.run.profiles>
+            </properties>
+        </profile>
+    </profiles>
+</project>

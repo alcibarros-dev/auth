@@ -1,0 +1,97 @@
+# Servidor de autorização. Configuração padrão (produção): endereços, chave e segredos vêm de variáveis de ambiente, e
+# os clientes OAuth, de um arquivo de cada projeto (ver README). Perfis: "local" (application-local.yml) e "test".
+spring:
+  application:
+    name: auth
+  threads:
+    virtual:
+      enabled: true
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    hikari:
+      # Tudo do servidor de autorização vive no schema "auth", com usuário de banco próprio fora do local (D8).
+      schema: auth
+      connection-timeout: 2000
+  flyway:
+    schemas: auth
+    default-schema: auth
+  data:
+    redis:
+      timeout: 100ms
+      connect-timeout: 200ms
+  web:
+    locale: pt_BR
+    locale-resolver: fixed
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: ${AUTH_ISSUER:http://localhost:8090}
+        # Os clientes (spring.security.oauth2.authorizationserver.client.<nome>.*) vêm da configuração de cada projeto:
+        # no container, de /config/application.yml (ver README). Sem nenhum cliente, a aplicação não sobe.
+
+server:
+  port: 8090
+  shutdown: graceful
+  servlet:
+    session:
+      # Cookies de localhost não se separam por porta: o painel e o app usam outros nomes (D2).
+      cookie:
+        name: AUTHSESSION
+        http-only: true
+        same-site: lax
+
+management:
+  server:
+    port: 8091
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  info:
+    java:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+        add-additional-paths: true
+      group:
+        liveness:
+          include: livenessState
+          show-details: never
+        readiness:
+          include: readinessState,db
+          show-details: never
+
+logging:
+  structured:
+    format:
+      console: ecs
+
+app:
+  auth:
+    # Nome exibido no topo e no título das páginas.
+    display-name: ${AUTH_DISPLAY_NAME:Conta}
+    # "aud" dos access tokens: a API que os valida. Obrigatório.
+    audience: ${AUTH_AUDIENCE}
+    signing-key:
+      id: ${AUTH_SIGNING_KEY_ID:auth-1}
+      location: ${AUTH_SIGNING_KEY_FILE:}
+    # Origens do frontend para onde o cadastro e a troca de senha podem voltar, e a volta padrão. Obrigatórios.
+    panel-origins: ${AUTH_PANEL_ORIGINS}
+    panel-default-url: ${AUTH_PANEL_DEFAULT_URL}
+  redis-guard:
+    failure-threshold: 5
+    open-duration: 5s
+  rate-limit:
+    login: { requests: 10, window: 1m }
+    login-email: { requests: 5, window: 15m }
+    register: { requests: 10, window: 1h }
+    password-change: { requests: 5, window: 15m }
+    token: { requests: 30, window: 1m }
+    token-client: { requests: 600, window: 1m }
+    device-authorization: { requests: 10, window: 1m }
+    device-verification: { requests: 10, window: 1m }

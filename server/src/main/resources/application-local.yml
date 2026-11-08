@@ -1,0 +1,49 @@
+# Perfil de desenvolvimento: sobe o compose.yaml (PostgreSQL e Redis), usa a chave de desenvolvimento e registra
+# clientes de exemplo para experimentar os fluxos. Uso: ./mvnw spring-boot:run
+spring:
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-only
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          # Terminal e curl: fluxo de dispositivo, com confirmação de cada código e sem refresh token.
+          demo-cli:
+            registration:
+              client-id: demo-cli
+              client-authentication-methods: none
+              authorization-grant-types: urn:ietf:params:oauth:grant-type:device_code
+              # O SAS não aceita openid no fluxo de dispositivo, que não emite id_token.
+              scopes: email
+            require-authorization-consent: true
+            token:
+              access-token-time-to-live: 15m
+          # Postman: código de autorização com PKCE.
+          demo-dev:
+            registration:
+              client-id: demo-dev
+              client-authentication-methods: none
+              authorization-grant-types: authorization_code
+              redirect-uris: https://oauth.pstmn.io/v1/callback
+              scopes: openid,email
+            require-proof-key: true
+            token:
+              access-token-time-to-live: 15m
+
+logging:
+  structured:
+    format:
+      console: ""
+
+app:
+  auth:
+    display-name: Auth (local)
+    audience: demo-api
+    signing-key:
+      # SOMENTE para desenvolvimento local. Nunca reutilize esta chave fora do perfil "local".
+      id: dev-1
+      location: classpath:keys/dev-signing-key.pem
+    panel-origins: http://localhost:4200
+    panel-default-url: http://localhost:4200/
