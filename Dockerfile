@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # Imagem do servidor de autorização (módulo server): build com o Maven Wrapper, runtime só com a JRE e usuário sem
 # privilégios. As bibliotecas (auth-security-api, auth-security) não viram imagem: vão por um repositório Maven.
-# Uso: docker build -t ghcr.io/alcibarros-dev/auth:local .
+# Uso: docker build -t auth:local .
 
 FROM eclipse-temurin:25.0.5_8-jdk-noble AS build
 WORKDIR /build

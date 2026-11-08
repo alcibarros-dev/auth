@@ -10,11 +10,11 @@
         <relativePath/>
     </parent>
 
-    <!-- Agregador e pai dos módulos. O servidor vira a imagem ghcr.io/alcibarros-dev/auth; o auth-security-api e o
-         auth-security são as bibliotecas das APIs que validam os tokens dele. -->
-    <groupId>dev.alcibarros</groupId>
+    <!-- Agregador e pai dos módulos. O servidor vira a imagem "auth" do GitHub Container Registry; o auth-security-api
+         e o auth-security são as bibliotecas das APIs que validam os tokens dele. -->
+    <groupId>br.com.authcore</groupId>
     <artifactId>auth-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>auth-parent</name>
     <description>Servidor de autorização OAuth 2 e OpenID Connect e as bibliotecas de validação dos tokens</description>
@@ -50,22 +50,22 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>dev.alcibarros</groupId>
+                <groupId>br.com.authcore</groupId>
                 <artifactId>auth-support</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.alcibarros</groupId>
+                <groupId>br.com.authcore</groupId>
                 <artifactId>auth-security-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.alcibarros</groupId>
+                <groupId>br.com.authcore</groupId>
                 <artifactId>auth-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>dev.alcibarros</groupId>
+                <groupId>br.com.authcore</groupId>
                 <artifactId>auth-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -94,11 +94,11 @@
                     <version>${jacoco.version}</version>
                     <configuration>
                         <excludes>
-                            <exclude>dev/alcibarros/auth/server/AuthServerApplication.class</exclude>
-                            <exclude>dev/alcibarros/auth/**/*Config.class</exclude>
-                            <exclude>dev/alcibarros/auth/**/*AutoConfiguration.class</exclude>
-                            <exclude>dev/alcibarros/auth/**/*Properties.class</exclude>
-                            <exclude>dev/alcibarros/auth/**/*Properties$*.class</exclude>
+                            <exclude>br/com/authcore/server/AuthServerApplication.class</exclude>
+                            <exclude>br/com/authcore/**/*Config.class</exclude>
+                            <exclude>br/com/authcore/**/*AutoConfiguration.class</exclude>
+                            <exclude>br/com/authcore/**/*Properties.class</exclude>
+                            <exclude>br/com/authcore/**/*Properties$*.class</exclude>
                         </excludes>
                     </configuration>
                 </plugin>

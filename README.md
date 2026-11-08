@@ -14,11 +14,8 @@ negócio: recebem o usuário autenticado pronto.
 | `support/` | `auth-support` | Respostas de erro RFC 9457, usadas pelo servidor e pelo `auth-security` | Jar, junto com o `auth-security` |
 | `coverage/` | `auth-coverage` | Sem código: o gate de cobertura de todos os módulos | — |
 
-Nasceu no [encurtador-url](https://github.com/alcibarros-dev/encurtador-url) e saiu de lá pelo
-[ADR-0007](https://github.com/alcibarros-dev/encurtador-url/blob/main/docs/adr/0007-servidor-de-autorizacao-em-repositorio-proprio.md).
-As decisões de projeto estão no
-[ADR-0003](https://github.com/alcibarros-dev/encurtador-url/blob/main/docs/adr/0003-servidor-de-autorizacao.md) de lá;
-as referências "ADR-000N, Dn" nos comentários do código apontam para os ADRs daquele repositório.
+Nasceu no projeto encurtador-url e saiu de lá pelo ADR-0007 daquele repositório; as decisões de projeto estão no
+ADR-0003 de lá, e as referências "ADR-000N, Dn" nos comentários do código apontam para os ADRs dele.
 
 **O que ele faz**
 
@@ -31,7 +28,7 @@ as referências "ADR-000N, Dn" nos comentários do código apontam para os ADRs 
 
 ## Usando num projeto
 
-A imagem é `ghcr.io/alcibarros-dev/auth`, para `linux/amd64` e `linux/arm64`. Fixe uma versão (`:0.1.0`): `:main`
+A imagem é `ghcr.io/alcibarros-dev/auth`, para `linux/amd64` e `linux/arm64`. Fixe uma versão (`:0.2.0`): `:main`
 muda a cada commit.
 
 1. Escreva um `application.yml` com os clientes, a audiência e o nome das páginas:
@@ -65,7 +62,7 @@ muda a cada commit.
    ```yaml
    services:
      auth:
-       image: ghcr.io/alcibarros-dev/auth:0.1.0
+       image: ghcr.io/alcibarros-dev/auth:0.2.0
        environment:
          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meuapp
          SPRING_DATASOURCE_USERNAME: meuapp
@@ -82,7 +79,7 @@ muda a cada commit.
 3. Na API do projeto, valide os tokens com o emissor (`iss` igual a `AUTH_ISSUER`), a audiência e o JWKS em
    `/oauth2/jwks`.
 
-O [encurtador-url](https://github.com/alcibarros-dev/encurtador-url) é um exemplo completo:
+O projeto encurtador-url é um exemplo completo:
 `infra/auth-server/application.yml` e o serviço `auth-server` do `compose.yaml` dele.
 
 ### Configuração
@@ -143,9 +140,9 @@ dependência:
 </repositories>
 
 <dependency>
-    <groupId>dev.alcibarros</groupId>
+    <groupId>br.com.authcore</groupId>
     <artifactId>auth-security</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -153,7 +150,7 @@ Os módulos de negócio, que só precisam de `@CurrentUser` e dos outros contrat
 O GitHub Packages exige token até para pacotes públicos: um servidor `github` no `settings.xml`, com um token
 (classic) com `read:packages`. No GitHub Actions de outro repositório, o `GITHUB_TOKEN` com `packages: read` serve,
 desde que o pacote dê acesso a esse repositório (Package settings → Manage Actions access). O
-[encurtador-url](https://github.com/alcibarros-dev/encurtador-url) mostra um jeito de fazer isso com variáveis de
+encurtador-url mostra um jeito de fazer isso com variáveis de
 ambiente (`.mvn/maven.config` e `.mvn/github-settings.xml`), inclusive no build da imagem.
 
 Para testar uma mudança aqui num projeto antes de publicá-la, `./mvnw install` instala as bibliotecas no repositório
@@ -199,7 +196,7 @@ Para testar um módulo sozinho:
 ## Imagem e publicação
 
 ```bash
-docker build -t ghcr.io/alcibarros-dev/auth:local .
+docker build -t auth:local .
 ```
 
 O CI testa cada push e pull request e publica a imagem no `ghcr.io`:
@@ -212,11 +209,11 @@ O CI testa cada push e pull request e publica a imagem no `ghcr.io`:
 Para lançar uma versão:
 
 ```bash
-git tag v0.1.0 && git push origin v0.1.0
+git tag v0.2.0 && git push origin v0.2.0
 ```
 
 Depois da primeira publicação, confira em **Packages → auth → Package settings** que a visibilidade da imagem é
-pública: assim os projetos baixam a imagem sem login. Nos pacotes Maven (`dev.alcibarros.auth-security` e os outros),
+pública: assim os projetos baixam a imagem sem login. Nos pacotes Maven (`br.com.authcore.auth-security` e os outros),
 dê acesso de leitura em **Manage Actions access** aos repositórios cujo CI os baixa.
 
 ## Limitações conhecidas

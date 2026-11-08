@@ -1,1 +1,1 @@
-dev.alcibarros.auth.security.autoconfigure.AppSecurityAutoConfiguration
+br.com.authcore.security.autoconfigure.AppSecurityAutoConfiguration
