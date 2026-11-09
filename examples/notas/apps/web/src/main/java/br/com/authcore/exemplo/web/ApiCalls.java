@@ -21,22 +21,18 @@ class ApiCalls {
     }
 
     AuthEndpoints.Response get(String path, String accessToken) {
-        return http.get().uri(apiUrl + path)
+        return AuthEndpoints.call(http.get().uri(apiUrl + path)
                 .headers(headers -> {
                     if (accessToken != null) {
                         headers.setBearerAuth(accessToken);
                     }
-                })
-                .exchange((request, response) -> new AuthEndpoints.Response(response.getStatusCode().value(),
-                        response.bodyTo(String.class)));
+                }));
     }
 
     AuthEndpoints.Response createNote(String accessToken, String titulo) {
-        return http.post().uri(apiUrl + "/api/v1/notas")
+        return AuthEndpoints.call(http.post().uri(apiUrl + "/api/v1/notas")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("titulo", titulo, "texto", "Criada pelo painel do app web"))
-                .exchange((request, response) -> new AuthEndpoints.Response(response.getStatusCode().value(),
-                        response.bodyTo(String.class)));
+                .body(Map.of("titulo", titulo, "texto", "Criada pelo painel do app web")));
     }
 }

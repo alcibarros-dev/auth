@@ -7,6 +7,12 @@ spring:
   threads:
     virtual:
       enabled: true
+  # As chamadas ao servidor de autorização e à API não esperam para sempre: sem resposta nesse prazo, a página mostra
+  # "sem resposta" no lugar do resultado.
+  http:
+    clients:
+      connect-timeout: 2s
+      read-timeout: 5s
   security:
     oauth2:
       client:

@@ -4,6 +4,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,11 +14,14 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +30,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +48,11 @@ import java.util.Set;
 class PainelController {
 
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final String NO_ANSWER = "Não houve resposta: o serviço está fora do ar ou demorou demais. "
+            + "Nada mudou; tente de novo quando ele voltar.";
+    /** Erros da renovação em que o refresh token não serve mais, ou a sessão não tem um: só um novo login resolve. */
+    private static final Set<String> RELOGIN_ERRORS = Set.of(OAuth2ErrorCodes.INVALID_GRANT,
+            OAuth2ErrorCodes.INVALID_TOKEN, "client_authorization_required");
 
     private final AuthEndpoints auth;
     private final ApiCalls api;
@@ -159,7 +171,7 @@ class PainelController {
                     ? "igual (o cliente notas-web não rotaciona: reuse-refresh-tokens)" : "novo") + "\n\n";
         }
         flash.addFlashAttribute("result", new Call("Renovar o access token",
-                answer.status() == 200
+                !answer.answered() ? NO_ANSWER : answer.status() == 200
                         ? "Esta aplicação trocou o refresh token por um access token novinho, sem pedir a sua senha. O "
                         + "token novo tem outro número de série (jti) e vale mais 15 minutos."
                         : "O servidor recusou a renovação. Se você revogou o refresh token, é isso mesmo: ele não serve "
@@ -178,7 +190,7 @@ class PainelController {
         AuthEndpoints.Response answer = auth.introspect(client.getClientRegistration(), token);
         flash.addFlashAttribute("result", new Call("Perguntar ao servidor sobre o "
                 + (refresh ? "refresh token" : "access token"),
-                "\"active\": true quer dizer que o servidor reconhece o token e ele ainda vale. "
+                !answer.answered() ? NO_ANSWER : "\"active\": true quer dizer que o servidor reconhece o token e ele ainda vale. "
                         + (refresh ? "Repare que o refresh token, que não tem nada escrito dentro, só pode ser "
                         + "\"lido\" assim: perguntando a quem o emitiu."
                         : "A API não faz esta pergunta a cada requisição; ela confere a assinatura sozinha."),
@@ -196,6 +208,10 @@ class PainelController {
         }
         AuthEndpoints.Response revoked = auth.revoke(client.getClientRegistration(),
                 client.getRefreshToken().getTokenValue());
+        if (!revoked.answered()) {
+            flash.addFlashAttribute("result", new Call("Revogar o refresh token", NO_ANSWER, "", 0, ""));
+            return "redirect:/painel#acoes";
+        }
         AuthEndpoints.Response access = auth.introspect(client.getClientRegistration(),
                 client.getAccessToken().getTokenValue());
         AuthEndpoints.Response stillAccepted = api.get("/api/v1/eu", client.getAccessToken().getTokenValue());
@@ -217,7 +233,8 @@ class PainelController {
                 RedirectAttributes flash) {
         AuthEndpoints.Response answer = api.createNote(client.getAccessToken().getTokenValue(), titulo);
         flash.addFlashAttribute("result", new Call("Criar uma nota na API",
-                answer.status() < 400 ? "A API recebeu o token, descobriu que é você e gravou a nota na sua conta."
+                !answer.answered() ? NO_ANSWER
+                        : answer.status() < 400 ? "A API recebeu o token, descobriu que é você e gravou a nota na sua conta."
                         : "A API recusou o pedido. A resposta abaixo diz por quê, no campo code.",
                 "POST /api/v1/notas com Authorization: Bearer <access token> e {\"titulo\": \"" + titulo + "\"}",
                 answer.status(), pretty(answer.body())));
@@ -243,8 +260,28 @@ class PainelController {
                 .build().toUriString();
     }
 
+    /** Sem resposta, a explicação de sucesso não vale: a página diz que o serviço não respondeu. */
     private Call call(String title, String plain, String request, AuthEndpoints.Response response) {
-        return new Call(title, plain, request, response.status(), pretty(response.body()));
+        return new Call(title, response.answered() ? plain : NO_ANSWER, request, response.status(),
+                pretty(response.body()));
+    }
+
+    /**
+     * A renovação automática do access token falhou ao montar a página (o Spring Security renova sozinho quando o
+     * token vence). Se o servidor recusou o refresh token, por exemplo depois do botão "Revogar", o login recomeça:
+     * com a sessão do servidor de autorização ainda aberta, ele é silencioso. Se o servidor não respondeu, a sessão
+     * daqui continua e a página avisa.
+     */
+    @ExceptionHandler(OAuth2AuthorizationException.class)
+    Object renovacaoFalhou(OAuth2AuthorizationException ex) {
+        String error = ex.getError().getErrorCode();
+        if (RELOGIN_ERRORS.contains(error)) {
+            return "redirect:/oauth2/authorization/notas";
+        }
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .contentType(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8))
+                .body("O servidor de autorização não respondeu ao renovar o seu access token (" + error
+                        + "). A sua sessão continua: recarregue a página em instantes.");
     }
 
     private String pretty(String body) {

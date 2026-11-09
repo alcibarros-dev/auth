@@ -14,6 +14,12 @@ spring:
       # Tudo do servidor de autorização vive no schema "auth", com usuário de banco próprio fora do local (ADR-0001, D6).
       schema: auth
       connection-timeout: 2000
+      data-source-properties:
+        # Em segundos. Banco pendurado (aceita a conexão e não responde) não segura o login nem a emissão de tokens
+        # para sempre. Vale também para o Flyway, que usa este pool: uma migração mais longa que isso precisa de um
+        # valor maior na subida (SPRING_DATASOURCE_HIKARI_DATA_SOURCE_PROPERTIES_SOCKETTIMEOUT).
+        socketTimeout: 30
+        connectTimeout: 2
   flyway:
     schemas: auth
     default-schema: auth

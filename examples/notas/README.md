@@ -130,7 +130,9 @@ funcionar é a renovação. O painel mostra isso no botão **Revogar refresh tok
 ./mvnw verify
 ```
 
-Os testes da aplicação web cobrem a página pública, o redirecionamento ao login com PKCE e a leitura dos JWTs. Os
+Os testes da aplicação web cobrem a página pública, o redirecionamento ao login com PKCE, a leitura dos JWTs e o
+painel com a API e o servidor de autorização fora do ar: a página abre e mostra "sem resposta" no lugar de cada
+resultado, os botões avisam, e o logout funciona mesmo sem conseguir revogar o refresh token. Os
 testes da API ([NotasApiTest](apps/api/src/test/java/br/com/authcore/exemplo/api/NotasApiTest.java)) sobem a
 aplicação com um PostgreSQL real (Testcontainers) e usam o `jwt()` do spring-security-test, que entrega um token já
 validado: a assinatura, o emissor e a audiência são testados no repositório do auth, e aqui o que importa é o que

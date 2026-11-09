@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Chamadas que este servidor web faz direto ao servidor de autorização, com as credenciais do cliente (client_id e
@@ -25,8 +26,21 @@ class AuthEndpoints {
         this.internalUrl = internalUrl;
     }
 
-    /** Resposta crua: status e corpo, mesmo nos erros, para a página mostrar. */
+    /**
+     * Resposta crua: status e corpo, mesmo nos erros, para a página mostrar. Status 0 quer dizer que não houve
+     * resposta (serviço fora do ar ou lento): a página mostra isso em vez de quebrar.
+     */
     record Response(int status, String body) {
+
+        static Response unreachable(RestClientException failure) {
+            Throwable cause = failure.getMostSpecificCause();
+            return new Response(0, "Sem resposta: " + cause.getClass().getSimpleName()
+                    + (cause.getMessage() == null ? "" : " (" + cause.getMessage() + ")"));
+        }
+
+        boolean answered() {
+            return status > 0;
+        }
     }
 
     /** RFC 6749, §6: refresh token por um access token novo. */
@@ -46,26 +60,30 @@ class AuthEndpoints {
 
     /** OpenID Connect: os dados do usuário, com o access token (exige o escopo openid). */
     Response userInfo(String accessToken) {
-        return http.get().uri(internalUrl + "/userinfo")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .exchange((request, response) -> new Response(response.getStatusCode().value(),
-                        response.bodyTo(String.class)));
+        return call(http.get().uri(internalUrl + "/userinfo")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken));
     }
 
     /** As chaves públicas: o que a API usa para conferir a assinatura dos access tokens. */
     Response jwks() {
-        return http.get().uri(internalUrl + "/oauth2/jwks")
-                .exchange((request, response) -> new Response(response.getStatusCode().value(),
-                        response.bodyTo(String.class)));
+        return call(http.get().uri(internalUrl + "/oauth2/jwks"));
     }
 
     private Response post(ClientRegistration client, String path, MultiValueMap<String, String> body) {
-        return http.post().uri(internalUrl + path)
+        return call(http.post().uri(internalUrl + path)
                 .headers(headers -> headers.setBasicAuth(client.getClientId(), client.getClientSecret()))
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(body)
-                .exchange((request, response) -> new Response(response.getStatusCode().value(),
-                        response.bodyTo(String.class)));
+                .body(body));
+    }
+
+    /** Status e corpo da resposta, qualquer que seja o status; sem resposta, {@link Response#unreachable}. */
+    static Response call(RestClient.RequestHeadersSpec<?> request) {
+        try {
+            return request.exchange((sent, response) -> new Response(response.getStatusCode().value(),
+                    response.bodyTo(String.class)));
+        } catch (RestClientException ex) {
+            return Response.unreachable(ex);
+        }
     }
 
     private static MultiValueMap<String, String> form(String... pairs) {

@@ -188,7 +188,7 @@
                 pode baixar em <code>/oauth2/jwks</code>. Trocar uma letra do conteúdo faz a conferência falhar, e a
                 API responde 401 <code>INVALID_TOKEN</code>.</p>
             <details>
-                <summary th:text="'As chaves públicas: ' + ${jwks.title} + ' (' + ${jwks.status} + ')'">JWKS</summary>
+                <summary th:text="'As chaves públicas: ' + ${jwks.title} + ' (' + (${jwks.status > 0} ? ${jwks.status} : 'sem resposta') + ')'">JWKS</summary>
                 <pre th:text="${jwks.body}">{}</pre>
             </details>
         </details>
@@ -298,7 +298,8 @@ docker compose exec redis redis-cli --scan</pre>
         </ol>
         <div th:each="call : ${apiCalls}" class="chamada">
             <h3><span th:text="${call.title}">GET</span>
-                <span th:class="${call.status < 400} ? 'status-ok' : 'status-erro'" th:text="${call.status}">200</span></h3>
+                <span th:class="${call.status > 0 and call.status < 400} ? 'status-ok' : 'status-erro'"
+                      th:text="${call.status > 0} ? ${call.status} : 'sem resposta'">200</span></h3>
             <p th:text="${call.plain}">…</p>
             <pre th:text="${call.body}">{}</pre>
         </div>
