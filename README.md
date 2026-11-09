@@ -8,11 +8,11 @@ negócio: recebem o usuário autenticado pronto.
 
 | Módulo | Artefato | O que é | Como chega aos projetos |
 |---|---|---|---|
-| `server/` | `auth-server` | O servidor de autorização | Imagem `ghcr.io/alcibarros-dev/auth` |
-| `security-api/` | `auth-security-api` | Contratos para os módulos de negócio: `@CurrentUser`, `UserIdResolver`, `PublicRoutes`, `OpenApiSecurity` | Jar, pelo GitHub Packages |
-| `security/` | `auth-security` | Validação dos tokens na API (resource server): JWKS com cache e tolerância à queda do servidor, cadeia de filtros e respostas 401, 403 e 503 em `problem+json` | Jar, pelo GitHub Packages |
-| `support/` | `auth-support` | Respostas de erro RFC 9457, usadas pelo servidor e pelo `auth-security` | Jar, junto com o `auth-security` |
-| `coverage/` | `auth-coverage` | Sem código: o gate de cobertura de todos os módulos | — |
+| `apps/server/` | `auth-server` | O servidor de autorização | Imagem `ghcr.io/alcibarros-dev/auth` |
+| `modules/security-api/` | `auth-security-api` | Contratos para os módulos de negócio: `@CurrentUser`, `UserIdResolver`, `PublicRoutes`, `OpenApiSecurity` | Jar, pelo GitHub Packages |
+| `modules/security/` | `auth-security` | Validação dos tokens na API (resource server): JWKS com cache e tolerância à queda do servidor, cadeia de filtros e respostas 401, 403 e 503 em `problem+json` | Jar, pelo GitHub Packages |
+| `modules/support/` | `auth-support` | Respostas de erro RFC 9457, usadas pelo servidor e pelo `auth-security` | Jar, junto com o `auth-security` |
+| `tools/coverage/` | `auth-coverage` | Sem código: o gate de cobertura de todos os módulos | — |
 
 Nasceu no projeto encurtador-url e saiu de lá pelo ADR-0007 daquele repositório. As decisões estão em
 [`docs/adr`](docs/adr/README.md): o servidor (ADR-0001), a validação dos tokens nas APIs (ADR-0002) e o repositório e
@@ -29,7 +29,11 @@ a distribuição (ADR-0003). Os comentários do código citam esses ADRs.
 
 ## Usando num projeto
 
-A imagem é `ghcr.io/alcibarros-dev/auth`, para `linux/amd64` e `linux/arm64`. Fixe uma versão (`:0.2.0`): `:main`
+O jeito mais rápido de ver tudo funcionando é o exemplo [`examples/notas`](examples/notas/README.md): uma API de notas
+em módulos, com o servidor de autorização no compose, testes e um `demo.sh` que faz cadastro, login pela CLI e
+chamadas à API. O README dele mostra onde entra cada biblioteca.
+
+A imagem é `ghcr.io/alcibarros-dev/auth`, para `linux/amd64` e `linux/arm64`. Fixe uma versão (`:0.3.0`): `:main`
 muda a cada commit.
 
 1. Escreva um `application.yml` com os clientes, a audiência e o nome das páginas:
@@ -63,7 +67,7 @@ muda a cada commit.
    ```yaml
    services:
      auth:
-       image: ghcr.io/alcibarros-dev/auth:0.2.0
+       image: ghcr.io/alcibarros-dev/auth:0.3.0
        environment:
          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meuapp
          SPRING_DATASOURCE_USERNAME: meuapp
@@ -80,8 +84,8 @@ muda a cada commit.
 3. Na API do projeto, valide os tokens com o emissor (`iss` igual a `AUTH_ISSUER`), a audiência e o JWKS em
    `/oauth2/jwks`.
 
-O projeto encurtador-url é um exemplo completo:
-`infra/auth-server/application.yml` e o serviço `auth-server` do `compose.yaml` dele.
+O [`examples/notas`](examples/notas) faz isso num projeto pequeno (`auth/application.yml` e o `compose.yaml`); o
+encurtador-url é um uso real, com um BFF e refresh token (`infra/auth-server/application.yml`).
 
 ### Configuração
 
@@ -145,7 +149,7 @@ dependência:
 <dependency>
     <groupId>br.com.authcore</groupId>
     <artifactId>auth-security</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -164,7 +168,7 @@ Maven local, com a versão do `pom.xml`.
 Pré-requisitos: Docker e Java 25 (`mise install` instala a versão do `.mise.toml`).
 
 ```bash
-./mvnw -pl server -am spring-boot:run
+./mvnw -pl apps/server -am spring-boot:run
 ```
 
 O perfil `local` sobe o `compose.yaml` (PostgreSQL na 5434 e Redis na 6380), assina com uma chave de desenvolvimento
@@ -188,12 +192,12 @@ dispositivo, cadastro, troca de senha, limites, rotação de chave e claims emit
 `app-web`, `app-dev`) definidos no `application-test.yml`. No `auth-security`, a validação do token (emissor,
 audiência, assinatura, `typ`), o cache do JWKS e o 503 sem nenhuma chave. O gate de cobertura (JaCoCo) exige 80% das
 linhas fora de configuração, somadas todas as do repositório; o relatório fica em
-`coverage/target/site/jacoco-aggregate/`.
+`tools/coverage/target/site/jacoco-aggregate/`.
 
 Para testar um módulo sozinho:
 
 ```bash
-./mvnw -pl security -am test
+./mvnw -pl modules/security -am test
 ```
 
 ## Imagem e publicação
@@ -212,7 +216,7 @@ O CI testa cada push e pull request e publica a imagem no `ghcr.io`:
 Para lançar uma versão:
 
 ```bash
-git tag v0.2.0 && git push origin v0.2.0
+git tag v0.4.0 && git push origin v0.4.0
 ```
 
 Depois da primeira publicação, confira em **Packages → auth → Package settings** que a visibilidade da imagem é

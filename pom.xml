@@ -14,17 +14,17 @@
          e o auth-security são as bibliotecas das APIs que validam os tokens dele. -->
     <groupId>br.com.authcore</groupId>
     <artifactId>auth-parent</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>auth-parent</name>
     <description>Servidor de autorização OAuth 2 e OpenID Connect e as bibliotecas de validação dos tokens</description>
 
     <modules>
-        <module>support</module>
-        <module>security-api</module>
-        <module>security</module>
-        <module>server</module>
-        <module>coverage</module>
+        <module>modules/support</module>
+        <module>modules/security-api</module>
+        <module>modules/security</module>
+        <module>apps/server</module>
+        <module>tools/coverage</module>
     </modules>
 
     <properties>
@@ -32,7 +32,7 @@
         <springdoc.version>3.2.0</springdoc.version>
         <jacoco.version>0.8.16</jacoco.version>
         <jacoco.minimum-line-coverage>0.80</jacoco.minimum-line-coverage>
-        <!-- Só o servidor roda com spring-boot:run: ./mvnw -pl server -am spring-boot:run -->
+        <!-- Só o servidor roda com spring-boot:run: ./mvnw -pl apps/server -am spring-boot:run -->
         <spring-boot.run.skip>true</spring-boot.run.skip>
     </properties>
 

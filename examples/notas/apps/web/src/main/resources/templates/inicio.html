@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notas · exemplo do auth</title>
+    <link rel="stylesheet" th:href="@{/css/painel.css}">
+</head>
+<body>
+<header><strong>Notas · exemplo do auth</strong></header>
+<main>
+    <section>
+        <h1>Um exemplo de uso do auth</h1>
+        <p>Esta aplicação web não tem tela de login: quem cuida do login, do cadastro e da senha é o servidor de
+            autorização (<a th:href="${authUrl}" th:text="${authUrl}">auth</a>). Ao clicar em <strong>Entrar</strong>,
+            o navegador vai até ele, você entra (ou cria uma conta) e volta para cá com um código, que esta aplicação
+            troca por tokens.</p>
+        <p>Depois do login, a página <code>/painel</code> mostra, com os seus dados reais, tudo o que o auth emitiu: o
+            que tem dentro de cada token, onde cada coisa fica guardada, o que a API extrai do token e o que o
+            servidor de autorização oferece hoje.</p>
+        <div class="acoes">
+            <a class="botao" href="/oauth2/authorization/notas">Entrar</a>
+            <a class="botao" style="background:transparent;color:var(--destaque)"
+               th:href="${authUrl} + '/register?continue=' + ${#uris.escapeQueryParam(webUrl + '/oauth2/authorization/notas')}">Criar conta</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

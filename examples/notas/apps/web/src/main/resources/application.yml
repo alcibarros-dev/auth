@@ -1,0 +1,55 @@
+# Aplicação web de exemplo: login pelo servidor de autorização (cliente notas-web) e a página /painel, que mostra o que
+# o auth emitiu. Os padrões servem para rodar fora do container, com o compose.yaml no ar; no container, o compose troca
+# os endereços internos.
+spring:
+  application:
+    name: notas-web
+  threads:
+    virtual:
+      enabled: true
+  security:
+    oauth2:
+      client:
+        registration:
+          notas:
+            provider: auth
+            client-id: notas-web
+            client-secret: ${NOTAS_WEB_SECRET:dev-notas-web}
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,email
+        # Endpoints escritos aqui, e não descobertos por issuer-uri: assim a aplicação sobe mesmo com o servidor fora,
+        # e o navegador usa o endereço público enquanto o servidor web usa o interno.
+        provider:
+          auth:
+            authorization-uri: ${app.auth.public-url}/oauth2/authorize
+            token-uri: ${app.auth.internal-url}/oauth2/token
+            jwk-set-uri: ${app.auth.internal-url}/oauth2/jwks
+            user-info-uri: ${app.auth.internal-url}/userinfo
+            user-name-attribute: sub
+
+server:
+  port: 8170
+  servlet:
+    session:
+      # Cookies de localhost não se separam por porta: o servidor de autorização já usa AUTHSESSION.
+      cookie:
+        name: NOTASWEB
+        http-only: true
+        same-site: lax
+
+app:
+  auth:
+    # Endereço que o navegador usa (vai no "iss" dos tokens).
+    public-url: ${AUTH_PUBLIC_URL:http://localhost:8190}
+    # Endereço que este servidor usa para falar com o auth (no container, http://auth:8090).
+    internal-url: ${AUTH_INTERNAL_URL:http://localhost:8190}
+  api:
+    # Endereço que este servidor usa para chamar a API (no container, http://api:8180).
+    url: ${API_URL:http://localhost:8180}
+    # Endereço que o navegador usa: os links da página.
+    public-url: ${API_PUBLIC_URL:http://localhost:8180}
+  # Para onde o logout do servidor de autorização volta.
+  public-url: ${WEB_PUBLIC_URL:http://localhost:8170}
+  zone: America/Sao_Paulo

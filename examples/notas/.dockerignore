@@ -1,0 +1,4 @@
+# Só os jars da API e da aplicação web entram no contexto do build.
+*
+!apps/api/target/exemplo-api.jar
+!apps/web/target/exemplo-web.jar

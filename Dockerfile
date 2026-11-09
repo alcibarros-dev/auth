@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Imagem do servidor de autorização (módulo server): build com o Maven Wrapper, runtime só com a JRE e usuário sem
+# Imagem do servidor de autorização (apps/server): build com o Maven Wrapper, runtime só com a JRE e usuário sem
 # privilégios. As bibliotecas (auth-security-api, auth-security) não viram imagem: vão por um repositório Maven.
 # Uso: docker build -t auth:local .
 
@@ -7,16 +7,16 @@ FROM eclipse-temurin:25.0.5_8-jdk-noble AS build
 WORKDIR /build
 
 # Dependências numa camada própria: mudar só o código não baixa tudo de novo. Os poms de todos os módulos entram
-# antes das fontes, nas mesmas pastas.
+# antes das fontes, nas mesmas pastas (apps/, modules/ e tools/).
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-COPY --parents */pom.xml ./
+COPY --parents */*/pom.xml ./
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q dependency:go-offline
 
 # Os testes precisam de Docker (Testcontainers) e rodam no CI com ./mvnw verify, não dentro do build da imagem.
-COPY --parents */src ./
-RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q package -DskipTests -pl server -am \
-    && cp server/target/*-exec.jar application.jar \
+COPY --parents */*/src ./
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -B -q package -DskipTests -pl apps/server -am \
+    && cp apps/server/target/*-exec.jar application.jar \
     && java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
 FROM eclipse-temurin:25.0.5_8-jre-noble

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Um projeto como qualquer outro que use o auth: não herda do auth-parent, só depende das bibliotecas. -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>br.com.authcore.exemplo</groupId>
+    <artifactId>exemplo-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>exemplo-parent</name>
+    <description>Exemplo de uso do auth: uma API de notas com login pelo servidor de autorização</description>
+
+    <modules>
+        <module>modules/contas</module>
+        <module>modules/notas</module>
+        <module>apps/api</module>
+        <module>apps/web</module>
+    </modules>
+
+    <properties>
+        <java.version>25</java.version>
+        <!-- A mesma versão da imagem do servidor no compose.yaml: sobem juntas. -->
+        <auth.version>0.3.0</auth.version>
+        <springdoc.version>3.2.0</springdoc.version>
+        <spring-boot.run.skip>true</spring-boot.run.skip>
+    </properties>
+
+    <!-- As bibliotecas do auth vêm do GitHub Packages, que exige token (ver .mvn/github-settings.xml). -->
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/alcibarros-dev/auth</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Contratos: o que os módulos de negócio usam (@CurrentUser, UserIdResolver, PublicRoutes) -->
+            <dependency>
+                <groupId>br.com.authcore</groupId>
+                <artifactId>auth-security-api</artifactId>
+                <version>${auth.version}</version>
+            </dependency>
+            <!-- Validação dos tokens: só a aplicação depende dele -->
+            <dependency>
+                <groupId>br.com.authcore</groupId>
+                <artifactId>auth-security</artifactId>
+                <version>${auth.version}</version>
+            </dependency>
+            <!-- Erros RFC 9457: vem junto com o auth-security; os módulos usam o ApiException -->
+            <dependency>
+                <groupId>br.com.authcore</groupId>
+                <artifactId>auth-support</artifactId>
+                <version>${auth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.authcore.exemplo</groupId>
+                <artifactId>exemplo-contas</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>br.com.authcore.exemplo</groupId>
+                <artifactId>exemplo-notas</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- O spring-boot:run roda na raiz, onde está o compose.yaml -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

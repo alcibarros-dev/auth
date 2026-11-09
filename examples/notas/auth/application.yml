@@ -1,0 +1,59 @@
+# Configuração do servidor de autorização para este projeto. A imagem ghcr.io/alcibarros-dev/auth lê este arquivo de
+# /config/application.yml (o compose.yaml o monta): os clientes OAuth, a audiência dos tokens e o nome das páginas são
+# de cada projeto; a imagem é a mesma para todos.
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          # Terminal e curl (demo.sh): fluxo de dispositivo, com confirmação de cada código na página do servidor.
+          notas-cli:
+            registration:
+              client-id: notas-cli
+              client-authentication-methods: none
+              authorization-grant-types: urn:ietf:params:oauth:grant-type:device_code
+              # O fluxo de dispositivo não emite id_token: sem openid.
+              scopes: email
+            require-authorization-consent: true
+            token:
+              access-token-time-to-live: 15m
+          # Aplicação web (apps/web): cliente confidencial no padrão BFF, com segredo, PKCE e refresh token sem rotação.
+          # Os tokens ficam no servidor web; o navegador só recebe o cookie de sessão dele.
+          notas-web:
+            registration:
+              client-id: notas-web
+              client-secret: "{noop}${NOTAS_WEB_SECRET:dev-notas-web}"
+              client-authentication-methods: client_secret_basic
+              authorization-grant-types: authorization_code,refresh_token
+              redirect-uris: http://localhost:8170/login/oauth2/code/notas
+              post-logout-redirect-uris: http://localhost:8170/
+              scopes: openid,email
+            require-proof-key: true
+            token:
+              access-token-time-to-live: 15m
+              refresh-token-time-to-live: 8h
+              reuse-refresh-tokens: true
+          # Botão "Authorize" do Swagger UI da API: código de autorização com PKCE, cliente público.
+          notas-swagger:
+            registration:
+              client-id: notas-swagger
+              client-authentication-methods: none
+              authorization-grant-types: authorization_code
+              redirect-uris: http://localhost:8180/swagger-ui/oauth2-redirect.html
+              scopes: openid,email
+            require-proof-key: true
+            token:
+              access-token-time-to-live: 15m
+
+app:
+  auth:
+    # Nome no topo e no título das páginas de login e cadastro.
+    display-name: Notas
+    # O "aud" dos access tokens: a API exige o mesmo valor em app.jwt.audience.
+    audience: notas-api
+    # Para onde o cadastro e a troca de senha podem voltar, e o "Ir para a aplicação" da página da conta.
+    panel-origins: http://localhost:8170,http://localhost:8180
+    panel-default-url: http://localhost:8170/painel
+  # O Swagger UI (8180) chama /oauth2/token do navegador.
+  cors:
+    allowed-origins: http://localhost:8180

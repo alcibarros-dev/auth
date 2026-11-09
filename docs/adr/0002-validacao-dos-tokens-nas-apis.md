@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | **Aceito** · implementado (`security-api/`, `security/`, `support/`) |
+| Status | **Aceito** · implementado (`modules/security-api/`, `modules/security/`, `modules/support/`) |
 | Data | 2026-11-09 |
 | Escopo | As bibliotecas com que a API de cada projeto valida os access tokens do servidor (ADR-0001) e entrega o usuário autenticado aos controllers |
 | Origem | Decisões tomadas no projeto encurtador-url (ADR-0001 D9, ADR-0002 D3, D4, D6 e D11, ADR-0003 D6 e D12 de lá), reescritas aqui sem o que era só do encurtador |

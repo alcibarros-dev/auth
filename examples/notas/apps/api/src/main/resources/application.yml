@@ -1,0 +1,58 @@
+# API de notas. Os valores padrão servem para rodar no IDE ou com ./mvnw spring-boot:run, com o compose.yaml no ar
+# (PostgreSQL na 5440 e servidor de autorização na 8190). No container, o compose troca o banco e o JWKS.
+spring:
+  application:
+    name: notas-api
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5440/notas
+    username: notas
+    password: notas
+  # Mensagens de validação em português.
+  web:
+    locale: pt_BR
+    locale-resolver: fixed
+  flyway:
+    # O schema "auth" é do servidor de autorização, com histórico Flyway próprio.
+    schemas: public
+
+server:
+  port: 8180
+
+management:
+  server:
+    port: 8181
+  endpoint:
+    health:
+      probes:
+        enabled: true
+        # /livez e /readyz na porta pública; o auth-security já as libera sem token.
+        add-additional-paths: true
+
+springdoc:
+  # Com a documentação ligada, o auth-security libera o Swagger UI sem token.
+  api-docs:
+    enabled: true
+  swagger-ui:
+    oauth:
+      client-id: notas-swagger
+      use-pkce-with-authorization-code-grant: true
+      scopes: openid,email
+
+app:
+  # O que o auth-security exige do token.
+  jwt:
+    # O "iss": a URL pública do servidor de autorização, a mesma que o navegador e a CLI usam.
+    issuer: http://localhost:8190
+    # O "aud": o app.auth.audience do servidor (auth/application.yml).
+    audience: notas-api
+    # De onde vêm as chaves públicas. No container, o endereço interno (http://auth:8090/oauth2/jwks).
+    jwk-set-uri: http://localhost:8190/oauth2/jwks
+    clock-skew: 5s
+    # Nome publicado em /.well-known/oauth-protected-resource (RFC 9728).
+    resource-name: API de notas
+  openapi:
+    authorization-url: http://localhost:8190/oauth2/authorize
+    token-url: http://localhost:8190/oauth2/token

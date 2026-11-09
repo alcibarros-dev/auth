@@ -1,0 +1,102 @@
+# Exemplo de uso do auth. Portas no host diferentes das do servidor (8090) e do encurtador, para rodarem juntos:
+#   8190  servidor de autorização (páginas, OAuth, JWKS)
+#   8170  aplicação web (login e a página /painel, que explica o que o auth fez)
+#   8180  API de notas (Swagger UI em /swagger-ui.html)
+#   5440  PostgreSQL
+#
+# Só a infraestrutura e o servidor de autorização, para rodar a API no IDE ou com ./mvnw:
+#   docker compose up -d
+# Tudo, com a API em container (antes, ./mvnw package):
+#   docker compose --profile app up -d --build
+services:
+  postgres:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_DB: notas
+      POSTGRES_USER: notas
+      POSTGRES_PASSWORD: notas
+    ports:
+      - "127.0.0.1:5440:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notas -d notas"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Contadores de rate limit do servidor de autorização. Sem persistência: se cair, os limites liberam.
+  redis:
+    image: redis:8.8.4-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # O servidor de autorização, pronto: a mesma imagem para qualquer projeto. O que é deste projeto vem do arquivo
+  # montado em /config. Sem AUTH_SIGNING_KEY_FILE, a chave de assinatura é gerada na subida, e os tokens deixam de
+  # valer quando o container reinicia (bom para um exemplo; em produção, monte uma chave).
+  auth:
+    image: ghcr.io/alcibarros-dev/auth:${AUTH_IMAGE_TAG:-0.3.0}
+    environment:
+      # Mesmo banco, schema "auth" (criado pelo Flyway do servidor).
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notas
+      SPRING_DATASOURCE_USERNAME: notas
+      SPRING_DATASOURCE_PASSWORD: notas
+      SPRING_DATA_REDIS_HOST: redis
+      # URL pública: vai no "iss" dos tokens. A API exige o mesmo valor em app.jwt.issuer.
+      AUTH_ISSUER: http://localhost:8190
+    volumes:
+      - ./auth/application.yml:/config/application.yml:ro
+    ports:
+      - "127.0.0.1:8190:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # A API de notas. O jar vem de ./mvnw package (apps/api/target/exemplo-api.jar).
+  api:
+    profiles: ["app"]
+    build:
+      context: .
+      args:
+        JAR: apps/api/target/exemplo-api.jar
+    image: exemplo-notas-api:local
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notas
+      # As chaves públicas pela rede interna; o emissor continua sendo a URL pública (app.jwt.issuer).
+      APP_JWT_JWK_SET_URI: http://auth:8090/oauth2/jwks
+    ports:
+      - "127.0.0.1:8180:8180"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth:
+        condition: service_started
+
+  # A aplicação web, cliente do servidor de autorização. O navegador usa o endereço público do servidor; este container,
+  # o interno.
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      args:
+        JAR: apps/web/target/exemplo-web.jar
+    image: exemplo-notas-web:local
+    environment:
+      AUTH_INTERNAL_URL: http://auth:8090
+      API_URL: http://api:8180
+    ports:
+      - "127.0.0.1:8170:8170"
+    depends_on:
+      auth:
+        condition: service_started
+      api:
+        condition: service_started
+
+volumes:
+  postgres_data:

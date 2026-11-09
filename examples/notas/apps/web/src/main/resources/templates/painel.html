@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel · como o auth funciona</title>
+    <link rel="stylesheet" th:href="@{/css/painel.css}">
+</head>
+<body>
+<header>
+    <strong>Notas · <span th:text="${email}">fulano@exemplo.com</span></strong>
+    <nav aria-label="Seções">
+        <a href="#resumo">Resumo</a>
+        <a href="#login">O login</a>
+        <a href="#tokens">Os tokens</a>
+        <a href="#onde">Onde fica</a>
+        <a href="#api">A API</a>
+        <a href="#experimente">Experimente</a>
+        <a href="#papeis">Papéis</a>
+        <a href="#formas">Formas de login</a>
+        <a href="#auth">O que o auth faz</a>
+        <a href="#glossario">Glossário</a>
+    </nav>
+    <form class="inline" method="post" th:action="@{/sair}"><button type="submit" class="sec">Sair</button></form>
+</header>
+<main>
+
+    <!-- Resultado do último botão -->
+    <section th:if="${result}" id="resultado" class="destaque">
+        <p class="rotulo">Resultado</p>
+        <h2 th:text="${result.title}">Resultado</h2>
+        <p class="simples" th:text="${result.plain}">O que aconteceu.</p>
+        <details th:if="${result.status > 0}">
+            <summary>Ver o pedido e a resposta (status <span th:text="${result.status}">200</span>)</summary>
+            <p class="suave mono" th:text="${result.request}">pedido</p>
+            <pre th:text="${result.body}">{}</pre>
+        </details>
+    </section>
+
+    <section id="resumo">
+        <h1>Como o auth funciona, em 1 minuto</h1>
+        <p class="simples">Pense num prédio comercial. Você não entra nas salas mostrando o RG para cada uma: mostra uma
+            vez na <strong>recepção</strong>, recebe um <strong>crachá</strong> e o crachá abre as portas.</p>
+        <div class="grade analogia">
+            <div class="caixa">
+                <p class="rotulo">Recepção</p>
+                <h3>Servidor de autorização</h3>
+                <p>Confere a sua senha e entrega os crachás. É o único lugar onde você digita a senha.</p>
+                <p class="suave mono" th:text="${authUrl}">auth</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Crachá</p>
+                <h3>Access token</h3>
+                <p>Diz quem você é e vale 15 minutos. É lacrado: ninguém consegue alterá-lo sem estragar o lacre.</p>
+                <p class="suave">Vale até <span th:text="${accessExpiresAt}">—</span></p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Leitor de crachá na porta</p>
+                <h3>A API</h3>
+                <p>Confere o lacre e a validade do crachá sozinha, sem ligar para a recepção a cada vez.</p>
+                <p class="suave mono" th:text="${apiUrl}">api</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Ficha para trocar o crachá</p>
+                <h3>Refresh token</h3>
+                <p>Quando o crachá vence, esta aplicação troca a ficha por um crachá novo, sem pedir a sua senha.</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Comprovante de entrada</p>
+                <h3>id_token</h3>
+                <p>Diz para esta aplicação quem acabou de entrar. Não abre porta nenhuma.</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Número da comanda</p>
+                <h3>Cookie de sessão</h3>
+                <p>O que o seu navegador guarda: só um número. Os crachás ficam guardados no servidor desta
+                    aplicação.</p>
+            </div>
+        </div>
+        <p>Nas próximas seções, cada uma dessas peças aparece com os seus dados de verdade, deste login.</p>
+    </section>
+
+    <section id="login">
+        <h2>O que aconteceu quando você entrou</h2>
+        <p class="simples">Foram cinco passos, em menos de um segundo. O mais importante: a sua senha só passou pelo
+            servidor de autorização. Esta aplicação nunca a viu.</p>
+        <svg class="diagrama" viewBox="0 0 760 250" role="img"
+             aria-label="Navegador, aplicação web, servidor de autorização e API, com os cinco passos do login">
+            <defs>
+                <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M0,0 L10,5 L0,10 z" class="seta"/>
+                </marker>
+            </defs>
+            <rect x="10" y="95" width="140" height="60" rx="8" class="no"/>
+            <text x="80" y="122" class="titulo-no">Você</text>
+            <text x="80" y="140" class="sub-no">navegador</text>
+            <rect x="300" y="95" width="160" height="60" rx="8" class="no"/>
+            <text x="380" y="122" class="titulo-no">Aplicação web</text>
+            <text x="380" y="140" class="sub-no">esta página · 8170</text>
+            <rect x="600" y="10" width="150" height="60" rx="8" class="no"/>
+            <text x="675" y="37" class="titulo-no">Servidor de</text>
+            <text x="675" y="55" class="titulo-no">autorização · 8190</text>
+            <rect x="600" y="180" width="150" height="60" rx="8" class="no"/>
+            <text x="675" y="207" class="titulo-no">API de notas</text>
+            <text x="675" y="225" class="sub-no">8180</text>
+            <line x1="150" y1="115" x2="298" y2="115" class="linha" marker-end="url(#seta)"/>
+            <text x="224" y="108" class="passo">1 · Entrar</text>
+            <path d="M80,95 C80,40 400,40 598,40" class="linha" marker-end="url(#seta)"/>
+            <text x="300" y="34" class="passo">2 · e-mail e senha</text>
+            <line x1="600" y1="62" x2="462" y2="105" class="linha" marker-start="url(#seta)" marker-end="url(#seta)"/>
+            <text x="515" y="70" class="passo">3 e 4 · código → tokens</text>
+            <line x1="460" y1="140" x2="598" y2="200" class="linha" marker-end="url(#seta)"/>
+            <text x="512" y="190" class="passo">5 · access token</text>
+            <line x1="298" y1="140" x2="152" y2="140" class="linha tracejada" marker-end="url(#seta)"/>
+            <text x="224" y="160" class="passo">cookie NOTASWEB</text>
+        </svg>
+        <ol class="passos">
+            <li><strong>Você clicou em Entrar.</strong> Esta aplicação mandou o seu navegador para o servidor de
+                autorização, dizendo quem ela é (<code th:text="${clientId}">notas-web</code>) e o que quer
+                (<code>openid email</code>).</li>
+            <li><strong>Você digitou e-mail e senha na página do servidor de autorização</strong>, não nesta. Ele
+                conferiu e abriu uma sessão para você lá (cookie <code>AUTHSESSION</code>).</li>
+            <li><strong>Ele devolveu o seu navegador para cá com um código</strong>, que vale uma vez só e por pouco
+                tempo.</li>
+            <li><strong>Esta aplicação trocou o código pelos tokens</strong>, falando direto com o servidor de
+                autorização, sem passar pelo navegador e mostrando a senha dela (o segredo do cliente).</li>
+            <li><strong>Pronto.</strong> Os tokens ficaram guardados aqui, no servidor desta aplicação, e o seu
+                navegador recebeu só o cookie <code>NOTASWEB</code>. Quando esta página precisa da API, é esta
+                aplicação que leva o access token até ela.</li>
+        </ol>
+        <details>
+            <summary>Detalhes técnicos: código de autorização com PKCE</summary>
+            <p>No passo 1, esta aplicação gerou e guardou na sua sessão um <code>state</code> (contra CSRF), um
+                <code>nonce</code> (amarra o id_token a este pedido) e um <code>code_verifier</code> secreto, e mandou
+                para <code th:text="${authUrl} + '/oauth2/authorize'">/oauth2/authorize</code> o
+                <code>code_challenge</code>, que é o SHA-256 do verifier. No passo 4, a troca em
+                <code>/oauth2/token</code> leva o código, o verifier e o segredo (Basic). Quem roubasse o código no
+                caminho não conseguiria trocá-lo: faltariam o segredo e o verifier. Esse é o PKCE, que o servidor
+                exige de todos os clientes.</p>
+        </details>
+    </section>
+
+    <section id="tokens">
+        <h2>Os três tokens que você recebeu</h2>
+        <p class="simples">Cada um tem um trabalho diferente. Só o access token vai para a API.</p>
+        <table>
+            <tr><th></th><th>Para que serve</th><th>Quem usa</th><th>Dá para ler?</th><th>Quanto tempo vale</th></tr>
+            <tr><td><strong>Access token</strong></td><td>Entrar na API</td><td>A API</td><td>Sim: é um JWT</td><td>15 minutos</td></tr>
+            <tr><td><strong>id_token</strong></td><td>Dizer a esta aplicação quem entrou</td><td>Esta aplicação</td><td>Sim: é um JWT</td><td>30 minutos</td></tr>
+            <tr><td><strong>Refresh token</strong></td><td>Pegar um access token novo sem senha</td><td>Esta aplicação, com o servidor de autorização</td><td>Não: é só um código aleatório</td><td>8 horas</td></tr>
+        </table>
+        <div class="nota">
+            <strong>JWT é lacrado, não trancado.</strong> Qualquer pessoa que tenha um JWT consegue ler o que está
+            escrito nele: é só texto em Base64. O que ninguém consegue é <em>alterar</em> sem que a API perceba,
+            porque a assinatura (o lacre) deixaria de bater. Por isso um token nunca leva senha nem segredo, e por
+            isso ele precisa ser guardado com cuidado: quem o tiver entra na API como você até ele vencer.
+        </div>
+
+        <h3 id="access">Access token: o crachá</h3>
+        <p>Emitido em <span th:text="${accessIssuedAt}">—</span>, vale até
+            <span th:text="${accessExpiresAt}">—</span>. Um JWT tem três partes, separadas por ponto:
+            <span class="p1">cabeçalho</span> . <span class="p2">conteúdo</span> . <span class="p3">assinatura</span>.</p>
+        <pre class="token"><span class="p1" th:text="${access.header}">h</span>.<span class="p2" th:text="${access.payload}">p</span>.<span class="p3" th:text="${access.signature}">s</span></pre>
+        <p>Aberto, o <span class="p2">conteúdo</span> diz isto. Cada linha é um <strong>claim</strong>, uma
+            afirmação que o servidor de autorização faz sobre você:</p>
+        <table class="claims">
+            <tr><th>Claim</th><th>Valor</th><th>O que quer dizer</th></tr>
+            <tr th:each="c : ${access.claims}">
+                <td class="nome" th:text="${c.name}">sub</td>
+                <td class="valor" th:text="${c.value}">…</td>
+                <td><span th:text="${c.simple}">…</span>
+                    <span class="tec" th:unless="${#strings.isEmpty(c.technical)}" th:text="${c.technical}">…</span></td>
+            </tr>
+        </table>
+        <details>
+            <summary>O <span class="p1">cabeçalho</span> e a <span class="p3">assinatura</span></summary>
+            <table class="claims">
+                <tr><th>Campo</th><th>Valor</th><th>O que quer dizer</th></tr>
+                <tr th:each="c : ${access.headerClaims}">
+                    <td class="nome" th:text="${c.name}">alg</td>
+                    <td class="valor" th:text="${c.value}">RS256</td>
+                    <td><span th:text="${c.simple}">…</span>
+                        <span class="tec" th:unless="${#strings.isEmpty(c.technical)}" th:text="${c.technical}">…</span></td>
+                </tr>
+            </table>
+            <p>A <span class="p3">assinatura</span> é calculada sobre o cabeçalho e o conteúdo com a chave privada
+                do servidor de autorização, que nunca sai de lá. A API confere com a chave pública, que qualquer um
+                pode baixar em <code>/oauth2/jwks</code>. Trocar uma letra do conteúdo faz a conferência falhar, e a
+                API responde 401 <code>INVALID_TOKEN</code>.</p>
+            <details>
+                <summary th:text="'As chaves públicas: ' + ${jwks.title} + ' (' + ${jwks.status} + ')'">JWKS</summary>
+                <pre th:text="${jwks.body}">{}</pre>
+            </details>
+        </details>
+
+        <h3 id="id">id_token: o comprovante de entrada</h3>
+        <p>Feito para esta aplicação, e não para a API: veja que o <code>aud</code> é
+            <code th:text="${clientId}">notas-web</code>, e a API, que só aceita <code>notas-api</code>, o recusaria.
+            Foi dele que esta aplicação tirou o seu e-mail para o topo da página.</p>
+        <table class="claims">
+            <tr><th>Claim</th><th>Valor</th><th>O que quer dizer</th></tr>
+            <tr th:each="c : ${idToken.claims}">
+                <td class="nome" th:text="${c.name}">sub</td>
+                <td class="valor" th:text="${c.value}">…</td>
+                <td><span th:text="${c.simple}">…</span>
+                    <span class="tec" th:unless="${#strings.isEmpty(c.technical)}" th:text="${c.technical}">…</span></td>
+            </tr>
+        </table>
+        <details>
+            <summary>Ver o id_token inteiro</summary>
+            <pre class="token"><span class="p1" th:text="${idToken.header}">h</span>.<span class="p2" th:text="${idToken.payload}">p</span>.<span class="p3" th:text="${idToken.signature}">s</span></pre>
+        </details>
+
+        <h3 id="refresh">Refresh token: a ficha de troca</h3>
+        <div th:if="${refreshToken}">
+            <pre class="token" th:text="${refreshToken}">…</pre>
+            <p>Não tem nada escrito dentro: é só um código aleatório. O significado dele está guardado no servidor de
+                autorização, que é o único que sabe a quem ele pertence. Ele só funciona junto com o segredo desta
+                aplicação, e por isso só aplicações que guardam segredo no servidor (como esta) o recebem. Um app que
+                roda inteiro no navegador ou uma CLI não recebem: quando o crachá vence, fazem o login de novo.</p>
+        </div>
+        <p th:unless="${refreshToken}">Esta sessão não tem refresh token.</p>
+
+        <h3>Mais um jeito de saber quem é você: <code>/userinfo</code></h3>
+        <p th:text="${userInfo.plain}">…</p>
+        <pre th:text="${userInfo.body}">{}</pre>
+        <p class="suave">Hoje ele devolve o mesmo que está no token: <code>sub</code> e <code>email</code>.</p>
+    </section>
+
+    <section id="onde">
+        <h2>Onde fica cada coisa</h2>
+        <div class="pergunta">
+            <p><strong>O JWT fica guardado no Redis, e o usuário recebe um token opaco?</strong></p>
+            <p>Quase. O Redis não guarda token nenhum: o servidor de autorização usa o Redis só para contar
+                tentativas (o limite de logins por minuto, por exemplo). Os tokens que ele emite ficam no
+                <strong>PostgreSQL</strong>. E sim, <strong>nesta aplicação</strong>, o seu navegador recebe só algo
+                opaco: um cookie de sessão. Os tokens ficam na memória do servidor desta aplicação.</p>
+        </div>
+        <table>
+            <tr><th>Onde</th><th>O que tem</th><th>Em palavras simples</th></tr>
+            <tr>
+                <td>Seu navegador</td>
+                <td>Cookies: <code th:each="c : ${cookies}" th:text="${c}" style="margin-right:4px">NOTASWEB</code></td>
+                <td><code>NOTASWEB</code> é o número da sua sessão nesta aplicação
+                    (<code th:text="${#strings.abbreviate(sessionId, 14)}">ABC…</code>); <code>AUTHSESSION</code>, o
+                    da sua sessão no servidor de autorização. São só números: sozinhos, não dizem quem você é, e o
+                    JavaScript da página não consegue lê-los.</td>
+            </tr>
+            <tr>
+                <td>Servidor desta aplicação</td>
+                <td>Os três tokens, na sua sessão, em memória</td>
+                <td>É ele que leva o access token à API. Se ele reiniciar, você entra de novo.</td>
+            </tr>
+            <tr>
+                <td>Servidor de autorização · PostgreSQL</td>
+                <td>Sua conta (e-mail e a senha embaralhada com bcrypt) e cada autorização, com os tokens emitidos</td>
+                <td>É o registro de tudo o que ele emitiu. É aqui que ele procura quando alguém pede para renovar,
+                    perguntar ou revogar um token.</td>
+            </tr>
+            <tr>
+                <td>Servidor de autorização · Redis</td>
+                <td>Contadores de tentativas</td>
+                <td>Nenhum token. Se o Redis cair, os limites param de contar e o resto continua.</td>
+            </tr>
+            <tr>
+                <td>API de notas</td>
+                <td>Nenhum token. Só a conta local: id, <code>sub</code> e e-mail</td>
+                <td>Ela confere o crachá a cada pedido e esquece. Não precisa guardar nada.</td>
+            </tr>
+        </table>
+        <details>
+            <summary>Conferir você mesmo, no terminal</summary>
+            <pre>cd examples/notas
+# os tokens emitidos, no PostgreSQL do servidor de autorização
+docker compose exec postgres psql -U notas -c "select registered_client_id, principal_name, access_token_issued_at, left(access_token_value, 40) as access_token from auth.oauth2_authorization order by access_token_issued_at desc limit 5"
+# o Redis: só chaves rl:* (rate limit)
+docker compose exec redis redis-cli --scan</pre>
+        </details>
+        <div class="nota">
+            <strong>E num app que roda só no navegador ou numa CLI?</strong> Aí não há um servidor no meio: o próprio
+            app recebe o access token (o JWT) e o guarda. É o caso do Swagger UI e do <code>demo.sh</code>, na seção
+            <a href="#formas">Formas de login</a>.
+        </div>
+    </section>
+
+    <section id="api">
+        <h2>O que a API faz com o token</h2>
+        <p class="simples">Esta aplicação acabou de chamar a API com o seu access token. Do outro lado, a API fez
+            quatro coisas, sem perguntar nada ao servidor de autorização:</p>
+        <ol class="passos">
+            <li><strong>Conferiu o lacre</strong> com a chave pública (que ela baixou uma vez e guarda).</li>
+            <li><strong>Conferiu se é para ela e se está no prazo</strong>: emissor (<code>iss</code>), destino
+                (<code>aud</code> = <code>notas-api</code>) e validade (<code>exp</code>).</li>
+            <li><strong>Descobriu qual conta é a sua</strong>: pegou o <code>sub</code> e procurou a conta local com
+                ele. No seu primeiro acesso, criou essa conta.</li>
+            <li><strong>Entregou só o número da conta ao código das notas.</strong> O código de negócio nunca vê o
+                token: recebe <code>@CurrentUser long contaId</code> e pronto.</li>
+        </ol>
+        <div th:each="call : ${apiCalls}" class="chamada">
+            <h3><span th:text="${call.title}">GET</span>
+                <span th:class="${call.status < 400} ? 'status-ok' : 'status-erro'" th:text="${call.status}">200</span></h3>
+            <p th:text="${call.plain}">…</p>
+            <pre th:text="${call.body}">{}</pre>
+        </div>
+        <form method="post" th:action="@{/painel/nota}" class="acoes">
+            <input type="text" name="titulo" value="Nota criada pelo painel" maxlength="120" aria-label="Título da nota">
+            <button type="submit">Criar nota na API</button>
+        </form>
+        <h3>O que dá para saber só pelo token</h3>
+        <table>
+            <tr><th>Pergunta</th><th>Resposta no token</th></tr>
+            <tr><td>Quem é?</td><td><code>sub</code> (fixo) e <code>email</code> (o do momento da emissão)</td></tr>
+            <tr><td>Quem emitiu, para quem, até quando?</td><td><code>iss</code>, <code>aud</code>, <code>exp</code></td></tr>
+            <tr><td>O que o usuário autorizou?</td><td><code>scope</code></td></tr>
+            <tr><td>Nome, papéis, plano, dados da aplicação?</td><td>Não estão no token. Vêm do banco da própria API,
+                pela conta local.</td></tr>
+        </table>
+    </section>
+
+    <section id="experimente">
+        <h2>Experimente</h2>
+        <p class="simples">Cada botão faz uma chamada de verdade ao servidor de autorização. O resultado aparece no
+            topo da página, explicado.</p>
+        <div class="grade">
+            <div class="caixa">
+                <h3>1. Renovar</h3>
+                <p>Troca o refresh token por um access token novo, sem senha.</p>
+                <p class="suave">Observe: o <code>jti</code> e o <code>exp</code> do access token mudam.</p>
+                <form method="post" th:action="@{/painel/renovar}"><button type="submit">Renovar</button></form>
+            </div>
+            <div class="caixa">
+                <h3>2. Perguntar ao servidor</h3>
+                <p>"Este token ainda vale?" (introspecção). É o único jeito de saber algo sobre o refresh token.</p>
+                <div class="acoes">
+                    <form method="post" th:action="@{/painel/introspectar}"><input type="hidden" name="alvo" value="access"><button type="submit">Access token</button></form>
+                    <form method="post" th:action="@{/painel/introspectar}"><input type="hidden" name="alvo" value="refresh"><button type="submit" class="sec">Refresh token</button></form>
+                </div>
+            </div>
+            <div class="caixa">
+                <h3>3. Revogar</h3>
+                <p>Cancela a autorização no servidor.</p>
+                <p class="suave">Observe: o servidor diz que o token não vale mais, mas a API continua aceitando até
+                    ele vencer. Depois, tente Renovar.</p>
+                <form method="post" th:action="@{/painel/revogar}"><button type="submit" class="sec">Revogar</button></form>
+            </div>
+            <div class="caixa">
+                <h3>4. Sair de tudo</h3>
+                <p>Encerra a sessão aqui e a do servidor de autorização.</p>
+                <p class="suave">Observe: o próximo Entrar pede a senha de novo.</p>
+                <form method="post" th:action="@{/sair}"><button type="submit" class="sec">Sair</button></form>
+            </div>
+        </div>
+    </section>
+
+    <section id="papeis">
+        <h2>Permissões e papéis</h2>
+        <p class="simples">O token de hoje diz <strong>quem você é</strong>, mas não diz <strong>o que você pode
+            fazer</strong> dentro da aplicação. Não há papéis (como "admin" ou "leitor") nele.</p>
+        <p>O que existe é o <code>scope</code>, que é outra coisa: o que <em>você</em> deixou <em>esta aplicação</em>
+            fazer em seu nome. Aqui, <code>openid</code> (fazer o seu login) e <code>email</code> (ver o seu e-mail).
+            O Spring transformou isso nestas permissões nesta aplicação:</p>
+        <p><code th:each="a : ${authorities}" th:text="${a}" style="margin-right:6px">SCOPE_email</code></p>
+        <h3>Como ter papéis com o que existe hoje</h3>
+        <div class="grade">
+            <div class="caixa">
+                <p class="rotulo">Recomendado</p>
+                <h3>Papel na conta da API</h3>
+                <p>A API já sabe qual é a sua conta (pelo <code>sub</code>). Basta a conta ter uma coluna
+                    <code>papel</code> no banco da API, e o código decidir com ela. Não muda nada no auth, e trocar o
+                    papel de alguém vale na hora.</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Para limitar aplicações</p>
+                <h3>Escopo por cliente</h3>
+                <p>Cada aplicação registrada no servidor declara os escopos que pode pedir. Serve para limitar o que
+                    uma <em>aplicação</em> faz (uma CLI só de leitura, por exemplo), não um usuário.</p>
+            </div>
+            <div class="caixa">
+                <p class="rotulo">Não existe hoje</p>
+                <h3>Papel dentro do token</h3>
+                <p>Exigiria o servidor de autorização escrever um claim novo, o que ele não faz. E um papel no token só
+                    muda quando o token é renovado.</p>
+            </div>
+        </div>
+        <p class="suave">Hoje a API deixa entrar qualquer pessoa logada com um token válido para ela. Quem pode o quê
+            lá dentro é decisão da própria API.</p>
+    </section>
+
+    <section id="formas">
+        <h2>Formas de entrar</h2>
+        <p class="simples">A conta e a senha são as mesmas em todas. O que muda é o tipo de aplicação, e cada tipo
+            está registrado no arquivo <code>auth/application.yml</code> deste projeto.</p>
+        <table>
+            <tr><th>Tipo de aplicação</th><th>Como entra</th><th>O que recebe</th><th>Experimente</th></tr>
+            <tr>
+                <td><strong>Site com servidor</strong><br><code>notas-web</code>, tem segredo</td>
+                <td>Você digita a senha na página do servidor de autorização e volta para cá</td>
+                <td>Os três tokens, guardados no servidor do site. O navegador fica só com o cookie. Renova sozinho.</td>
+                <td>Esta página</td>
+            </tr>
+            <tr>
+                <td><strong>App que roda no navegador</strong><br><code>notas-swagger</code>, sem segredo</td>
+                <td>Igual, numa janela que abre e fecha</td>
+                <td>O access token, guardado na própria página. Sem refresh token: quando vence, clique em Authorize de
+                    novo (não pede senha se a sessão do servidor estiver aberta).</td>
+                <td><a th:href="${apiUrl} + '/swagger-ui.html'">Swagger UI</a>, botão Authorize</td>
+            </tr>
+            <tr>
+                <td><strong>Terminal ou TV</strong><br><code>notas-cli</code>, sem segredo</td>
+                <td>O terminal mostra um código; você abre o endereço no navegador (até em outro aparelho), entra e
+                    confirma</td>
+                <td>Só o access token</td>
+                <td><code>./demo.sh</code>, ou os comandos abaixo</td>
+            </tr>
+        </table>
+        <details>
+            <summary>Entrar pelo terminal, passo a passo, com curl</summary>
+            <pre th:text="'# 1. o terminal pede um código
+curl -s -X POST ' + ${authUrl} + '/oauth2/device_authorization -d client_id=notas-cli -d scope=email
+
+# 2. abra no navegador o verification_uri_complete da resposta, entre e confirme
+
+# 3. o terminal troca o device_code pelo token (enquanto você não confirma, a resposta é authorization_pending)
+curl -s -X POST ' + ${authUrl} + '/oauth2/token -d client_id=notas-cli \
+  -d grant_type=urn:ietf:params:oauth:grant-type:device_code -d device_code=&lt;device_code&gt;
+
+# 4. usa a API com o token
+curl -s ' + ${apiUrl} + '/api/v1/notas -H &quot;Authorization: Bearer &lt;access_token&gt;&quot;'">…</pre>
+        </details>
+        <p class="suave">Login social (Google, GitHub), segundo fator (MFA) e login de máquina para máquina (client
+            credentials) não existem hoje.</p>
+    </section>
+
+    <section id="auth">
+        <h2>O que o auth faz, e o que não faz</h2>
+        <p class="simples">O auth são duas coisas: o <strong>servidor de autorização</strong>, que roda como uma imagem
+            Docker igual para todos os projetos, e as <strong>bibliotecas</strong> que a API de cada projeto usa para
+            conferir os tokens.</p>
+        <div class="grade">
+            <div class="caixa">
+                <h3>Servidor (imagem)</h3>
+                <p>Páginas de login, cadastro e troca de senha; emite os tokens. Cada projeto o configura com um
+                    arquivo: quais aplicações podem entrar, para qual API são os tokens, o nome nas páginas.</p>
+            </div>
+            <div class="caixa">
+                <h3><code>auth-security</code></h3>
+                <p>Vai na API. Confere o token a cada pedido e responde 401 ou 403 quando não pode. Esta aplicação web
+                    não o usa: ela pede tokens, não recebe.</p>
+            </div>
+            <div class="caixa">
+                <h3><code>auth-security-api</code> e <code>auth-support</code></h3>
+                <p>O que o código de negócio da API usa: <code>@CurrentUser</code> para saber quem é o usuário, e um
+                    formato único para as mensagens de erro.</p>
+            </div>
+        </div>
+        <table>
+            <tr><th>Faz hoje</th><th>Não faz hoje</th></tr>
+            <tr>
+                <td>
+                    <ul>
+                        <li>Login, logout e cadastro, com sessão própria (entrar uma vez vale para todos os apps do
+                            projeto)</li>
+                        <li>Troca de senha, que desconecta os outros acessos</li>
+                        <li>Login de sites (com e sem servidor) e de terminal</li>
+                        <li>Renovar o acesso sem senha (para sites com servidor)</li>
+                        <li>Perguntar se um token vale, e cancelar um token</li>
+                        <li>Trocar a chave de assinatura sem derrubar ninguém</li>
+                        <li>Limitar tentativas de login e cadastro</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>Papéis ou grupos dentro do token</li>
+                        <li>Login de máquina para máquina (client credentials)</li>
+                        <li>Login com senha digitada direto no app (proibido no OAuth 2.1)</li>
+                        <li>Login social, segundo fator (MFA)</li>
+                        <li>Verificar o e-mail, apagar a conta</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="glossario">
+        <h2>Glossário</h2>
+        <dl>
+            <dt>OAuth 2.1</dt><dd>As regras de como uma aplicação ganha permissão para agir em nome de alguém sem saber a
+            senha dessa pessoa.</dd>
+            <dt>OpenID Connect (OIDC)</dt><dd>Uma camada sobre o OAuth para o login: acrescenta o id_token e o
+            <code>/userinfo</code>.</dd>
+            <dt>Servidor de autorização</dt><dd>Quem confere a senha e emite os tokens. Aqui, o auth.</dd>
+            <dt>Cliente</dt><dd>A aplicação que pede tokens: este site, o Swagger UI, a CLI. Cada um é registrado no
+            servidor com um <code>client_id</code>.</dd>
+            <dt>Servidor de recurso</dt><dd>Quem recebe e confere os tokens: a API.</dd>
+            <dt>JWT</dt><dd>Um formato de token: um texto em três partes (cabeçalho, conteúdo, assinatura) que qualquer
+            um lê e ninguém altera sem ser notado.</dd>
+            <dt>Claim</dt><dd>Cada informação dentro de um JWT, como <code>sub</code> ou <code>exp</code>.</dd>
+            <dt>Assinatura e JWKS</dt><dd>O lacre do JWT, feito com a chave privada do servidor. O JWKS é a lista das
+            chaves públicas, com que qualquer um confere o lacre.</dd>
+            <dt>Escopo (scope)</dt><dd>O que o usuário autorizou a aplicação a fazer em nome dele.</dd>
+            <dt>PKCE</dt><dd>Uma proteção do login: o código que volta pelo navegador só pode ser trocado por quem
+            começou o login.</dd>
+            <dt>BFF (backend for frontend)</dt><dd>Um servidor que guarda os tokens pelo navegador, como esta
+            aplicação. O navegador fica só com um cookie.</dd>
+            <dt>Introspecção</dt><dd>Perguntar ao servidor de autorização se um token ainda vale.</dd>
+            <dt>Revogação</dt><dd>Pedir ao servidor de autorização que cancele um token.</dd>
+        </dl>
+    </section>
+</main>
+</body>
+</html>

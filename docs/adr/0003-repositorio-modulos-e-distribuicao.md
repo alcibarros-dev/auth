@@ -22,15 +22,16 @@ Em 2026-11-08 eles saíram para este repositório, que começou num commit só, 
 
 ### D1 — Módulos
 
-`br.com.authcore:auth-parent`, filho do `spring-boot-starter-parent`:
+`br.com.authcore:auth-parent`, filho do `spring-boot-starter-parent`, com as pastas no mesmo arranjo do
+encurtador-url: aplicações em `apps/`, bibliotecas em `modules/` e ferramentas de build em `tools/`.
 
 | Módulo | Artefato | Pacote | O que é | Distribuição |
 |---|---|---|---|---|
-| `support/` | `auth-support` | `br.com.authcore.support` | Respostas de erro RFC 9457 e o `Clock` padrão | Jar |
-| `security-api/` | `auth-security-api` | `br.com.authcore.security` | Contratos para o código de negócio (ADR-0002, D1) | Jar |
-| `security/` | `auth-security` | `br.com.authcore.security` | Validação dos tokens na API (ADR-0002) | Jar |
-| `server/` | `auth-server` | `br.com.authcore.server` | O servidor de autorização (ADR-0001) | Imagem |
-| `coverage/` | `auth-coverage` | — | Gate de cobertura: 80% das linhas, somados todos os módulos | Nenhuma |
+| `modules/support/` | `auth-support` | `br.com.authcore.support` | Respostas de erro RFC 9457 e o `Clock` padrão | Jar |
+| `modules/security-api/` | `auth-security-api` | `br.com.authcore.security` | Contratos para o código de negócio (ADR-0002, D1) | Jar |
+| `modules/security/` | `auth-security` | `br.com.authcore.security` | Validação dos tokens na API (ADR-0002) | Jar |
+| `apps/server/` | `auth-server` | `br.com.authcore.server` | O servidor de autorização (ADR-0001) | Imagem |
+| `tools/coverage/` | `auth-coverage` | — | Gate de cobertura: 80% das linhas, somados todos os módulos | Nenhuma |
 
 O servidor usa pouco do que era a plataforma do encurtador: o rate limit, o `RedisGuard`, a validação de tamanho em
 UTF-8, o `Clock` e o agendamento. Essas classes foram copiadas para dentro do `server` e evoluem com ele. Só as
@@ -76,6 +77,14 @@ número do meio enquanto a versão for `0.x`.
 Desde a 0.2.0, o `groupId` e os pacotes Java são `br.com.authcore`. O dono do GitHub continua só nos endereços que o
 GitHub exige (`github.com/<dono>/auth`, `ghcr.io/<dono>/auth`, `maven.pkg.github.com/<dono>/auth`); tirá-lo daí
 exigiria uma organização. Os pacotes e as imagens do namespace anterior foram apagados.
+
+### D7 — Exemplo de uso no repositório
+
+`examples/notas` é um projeto completo que usa o auth como qualquer outro: herda do `spring-boot-starter-parent`, e não
+do `auth-parent`; depende das bibliotecas pela versão publicada (`auth.version`) e sobe o servidor pela imagem, com o
+próprio arquivo de clientes. Fica fora do reactor, para não virar dependência do build. O CI o roda com as
+bibliotecas e a imagem do commit (`-Dauth.version` e `AUTH_IMAGE_TAG`), incluindo a demonstração de ponta a ponta:
+uma mudança que quebre o uso das bibliotecas aparece aqui antes de chegar a um projeto.
 
 ## 3. Alternativas consideradas
 

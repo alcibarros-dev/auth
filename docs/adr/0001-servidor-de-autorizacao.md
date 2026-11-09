@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Status | **Aceito** · implementado (`server/`) |
+| Status | **Aceito** · implementado (`apps/server/`) |
 | Data | 2026-11-09 |
 | Escopo | O servidor de autorização OAuth 2.1 e OpenID Connect (`auth-server`): clientes, fluxos, tokens, chaves, dados, páginas e proteções |
 | Origem | Decisões tomadas no projeto encurtador-url (ADR-0001 D7, D9 e D11, ADR-0003 e ADR-0004 D4 de lá), reescritas aqui sem o que era só do encurtador |
