@@ -65,7 +65,7 @@ public class OAuthFlows {
         return new Login(session, result.getResponse().getRedirectedUrl());
     }
 
-    /** Código de autorização com PKCE e troca pelo token, para o cliente do painel. */
+    /** Código de autorização com PKCE e troca pelo token, para o cliente confidencial. */
     public Tokens authorizationCode(MockHttpSession session) throws Exception {
         Pkce pkce = Pkce.create();
         String location = authorize(session, WEB_CLIENT, WEB_REDIRECT, "openid email", pkce);

@@ -8,7 +8,7 @@
     <p class="aviso" role="status" th:if="${param.success}">Dispositivo autorizado. Volte ao terminal.</p>
     <p>Você está conectado como <strong th:text="${email}">fulano@exemplo.com</strong>.</p>
     <ul>
-        <li><a th:href="${panelUrl}">Ir para o painel</a></li>
+        <li><a th:href="${panelUrl}">Ir para a aplicação</a></li>
         <li><a th:href="@{/account/password}">Trocar senha</a></li>
     </ul>
     <form method="post" th:action="@{/logout}">

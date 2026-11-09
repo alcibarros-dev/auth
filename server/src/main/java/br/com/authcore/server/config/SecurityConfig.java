@@ -33,7 +33,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 /**
- * Duas cadeias (ADR-0003, D2 e D9): a dos endpoints do protocolo (SAS), que não usa CSRF, e a das páginas (login,
+ * Duas cadeias (ADR-0001, D2): a dos endpoints do protocolo (SAS), que não usa CSRF, e a das páginas (login,
  * cadastro, troca de senha, confirmação de dispositivo), com sessão e CSRF.
  */
 @Configuration(proxyBeanMethods = false)
@@ -48,8 +48,8 @@ class SecurityConfig {
                     http.securityMatcher(authorizationServer.getEndpointsMatcher());
                     authorizationServer
                             // Logout com um id_token que o servidor não conhece mais, como depois de uma troca de
-                            // senha, que encerra as autorizações (ADR-0003, D9): a sessão daqui acaba do mesmo jeito,
-                            // e o navegador volta ao endereço fixo do painel, nunca a um endereço da requisição.
+                            // senha, que encerra as autorizações (ADR-0001, D7): a sessão daqui acaba do mesmo jeito,
+                            // e o navegador volta ao endereço fixo da aplicação, nunca a um endereço da requisição.
                             .oidc(oidc -> oidc.logoutEndpoint(logout -> logout.errorResponseHandler(
                                     (request, response, exception) -> {
                                         new SecurityContextLogoutHandler().logout(request, response, null);
@@ -76,7 +76,7 @@ class SecurityConfig {
     SecurityFilterChain pagesChain(HttpSecurity http, UserDetailsService users, PasswordEncoder passwordEncoder,
                                    RateLimiter limiter) throws Exception {
         http.authorizeHttpRequests(authorize -> {
-                    // Actuator completo só na porta de gestão; /livez e /readyz na pública (ADR-0001, D13).
+                    // Actuator completo só na porta de gestão; /livez e /readyz na pública (ADR-0001, D2).
                     authorize.requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll();
                     authorize.requestMatchers(
                             EndpointRequest.toAdditionalPaths(WebServerNamespace.SERVER, HealthEndpoint.class)).permitAll();
@@ -92,13 +92,13 @@ class SecurityConfig {
         return http.build();
     }
 
-    /** bcrypt hoje, com prefixo no hash: permite trocar de algoritmo sem invalidar senhas (ADR-0001, D9). */
+    /** bcrypt hoje, com prefixo no hash: permite trocar de algoritmo sem invalidar senhas (ADR-0001, D7). */
     @Bean
     PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    /** Só o Swagger UI do perfil local chama o endpoint de token de outra origem (ADR-0003, D10). */
+    /** Só o Swagger UI do perfil local chama o endpoint de token de outra origem (ADR-0001, D10). */
     @Bean
     CorsConfigurationSource corsConfigurationSource(AuthServerCorsProperties cors) {
         var source = new UrlBasedCorsConfigurationSource();

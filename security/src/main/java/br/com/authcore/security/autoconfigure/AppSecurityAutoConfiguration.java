@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
 /**
- * Segurança do app (ADR-0002, D4 e D11): registra os beans de {@code br.com.authcore.security} numa aplicação que
+ * Segurança da API (ADR-0002, D2 e D6): registra os beans de {@code br.com.authcore.security} numa aplicação que
  * não escaneia esse pacote.
  * <p>
  * Se a aplicação também escanear esse pacote, a varredura daqui reencontra as mesmas classes e não as registra de

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import java.time.Clock;
 
 /**
- * Toda leitura de tempo passa por este {@link Clock}, que os testes substituem (ADR-0001, D2).
+ * Toda leitura de tempo passa por este {@link Clock}, que os testes substituem (ADR-0001, D11).
  */
 @Configuration(proxyBeanMethods = false)
 class TimeConfig {

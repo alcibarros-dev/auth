@@ -13,12 +13,12 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * Propriedades do servidor de autorização ({@code app.auth.*}, ADR-0003 D5 e D9; ADR-0004, fase WA).
+ * Propriedades do servidor de autorização ({@code app.auth.*}, ADR-0001, D5 e D9).
  *
- * @param audience           {@code aud} dos access tokens: o app só aceita tokens para ele
+ * @param audience           {@code aud} dos access tokens: a API do projeto, que só aceita tokens para ela
  * @param signingKey         chave RSA que assina os tokens
  * @param previousSigningKey chave anterior, publicada no JWKS durante a rotação; não assina nada
- * @param panelOrigins       origens do painel para onde o cadastro e a troca de senha podem voltar
+ * @param panelOrigins       origens da aplicação para onde o cadastro e a troca de senha podem voltar
  * @param panelDefaultUrl    para onde ir depois do cadastro ou da troca de senha sem uma volta válida
  */
 @Validated

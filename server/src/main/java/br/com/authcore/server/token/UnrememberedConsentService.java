@@ -6,7 +6,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 /**
  * Consentimento que nunca é lembrado: só o cliente do fluxo de dispositivo pede consentimento, e cada {@code user_code}
  * precisa ser confirmado. Lembrado, um segundo link com o código de outra pessoa entregaria a ela um token de quem já
- * confirmou uma vez (ADR-0003, D9).
+ * confirmou uma vez (ADR-0001, D4).
  */
 final class UnrememberedConsentService implements OAuth2AuthorizationConsentService {
 

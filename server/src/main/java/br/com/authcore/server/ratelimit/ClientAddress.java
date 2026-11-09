@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.util.HexFormat;
 
 /**
- * Sujeito dos limites por IP (ADR-0001, D11). IPv6 é agregado por /64: quem recebe um prefixo do provedor troca de
+ * Sujeito dos limites por IP (ADR-0001, D8). IPv6 é agregado por /64: quem recebe um prefixo do provedor troca de
  * endereço dentro dele à vontade.
  * <p>
  * Vem de {@code getRemoteAddr()}. Atrás de proxy, use {@code server.forward-headers-strategy=native} com

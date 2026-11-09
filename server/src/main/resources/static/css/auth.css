@@ -1,5 +1,5 @@
-/* Tokens de cor e tipografia do painel (ADR-0004, R4): os mesmos do frontend, para as páginas do servidor de
-   autorização não destoarem. Tema claro e escuro conforme a preferência do sistema. */
+/* Tokens de cor e tipografia das páginas (ADR-0001, D9). No encurtador-url, são os mesmos do frontend, para as
+   páginas do servidor de autorização não destoarem. Tema claro e escuro conforme a preferência do sistema. */
 :root {
     --cor-fundo: #f6f7f9;
     --cor-superficie: #ffffff;

@@ -4,7 +4,7 @@ import org.springframework.security.core.AuthenticationException;
 
 import java.time.Duration;
 
-/** Tentativas de login acima do limite por IP ou por e-mail (ADR-0003, D9); a página de login mostra a espera. */
+/** Tentativas de login acima do limite por IP ou por e-mail (ADR-0001, D8); a página de login mostra a espera. */
 public class LoginBlockedException extends AuthenticationException {
 
     private final long retryAfterSeconds;

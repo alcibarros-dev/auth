@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Carrega a credencial pelo e-mail para o login por formulário. O principal é o {@link User} do Spring Security, que
- * o serviço de autorização JDBC sabe serializar; o {@code sub} dos tokens vem da credencial (ADR-0003, D5).
+ * o serviço de autorização JDBC sabe serializar; o {@code sub} dos tokens vem da credencial (ADR-0001, D5).
  */
 @Service
 class CredentialUserDetailsService implements UserDetailsService {

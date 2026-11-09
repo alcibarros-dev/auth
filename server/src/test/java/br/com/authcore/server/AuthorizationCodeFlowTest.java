@@ -24,7 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Código de autorização com PKCE, claims dos tokens e refresh token do painel (ADR-0003, D4 e D5; ADR-0004, D4). */
+/** Código de autorização com PKCE, claims dos tokens e refresh token do cliente confidencial (ADR-0001, D3,
+ * D4 e D5). */
 @AuthServerTest
 class AuthorizationCodeFlowTest {
 
@@ -147,7 +148,7 @@ class AuthorizationCodeFlowTest {
 
     /**
      * A troca de senha encerra as autorizações, e o id_token da sessão deixa de ser conhecido: o logout encerra a
-     * sessão daqui mesmo assim e volta ao endereço fixo do painel, ignorando o pedido (ADR-0004, D4).
+     * sessão daqui mesmo assim e volta ao endereço fixo da aplicação, ignorando o pedido (ADR-0001, D9).
      */
     @Test
     void logoutWithAnIdTokenThatIsNoLongerKnownStillEndsTheSession() throws Exception {

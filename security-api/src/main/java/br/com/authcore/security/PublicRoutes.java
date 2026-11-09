@@ -3,7 +3,7 @@ package br.com.authcore.security;
 import java.util.List;
 
 /**
- * Rotas que um módulo libera sem token (ADR-0002, D3). Cada módulo declara as suas num bean; o {@code security} só
+ * Rotas que um módulo libera sem token (ADR-0002, D1). Cada módulo declara as suas num bean; o {@code security} só
  * conhece as rotas de infraestrutura (probes, Swagger, {@code /error}). O resto de {@code /api/v1/**} exige token, e
  * qualquer outra rota é negada.
  */

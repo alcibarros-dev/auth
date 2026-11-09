@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Fluxo de dispositivo da CLI: cliente público, confirmação de cada código e token (ADR-0003, D3, D4 e D9). */
+/** Fluxo de dispositivo da CLI: cliente público, confirmação de cada código e token (ADR-0001, D3 e D4). */
 @AuthServerTest
 class DeviceFlowTest {
 

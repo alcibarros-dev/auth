@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** {@code @CurrentUser} delega ao provedor e transforma assunto desconhecido em token inválido (ADR-0002, D3). */
+/** {@code @CurrentUser} delega ao provedor e transforma assunto desconhecido em token inválido (ADR-0002, D1). */
 class CurrentUserArgumentResolverTest {
 
     private final UserIdResolver users = mock(UserIdResolver.class);

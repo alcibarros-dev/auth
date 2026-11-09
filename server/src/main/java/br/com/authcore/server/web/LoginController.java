@@ -3,7 +3,7 @@ package br.com.authcore.server.web;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** Página de login; o POST é do formulário do Spring Security (ADR-0003, D4). */
+/** Página de login; o POST é do formulário do Spring Security (ADR-0001, D4). */
 @Controller
 class LoginController {
 

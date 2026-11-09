@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Validação pelo JWKS (ADR-0003, D6 e D12) com o decodificador real e um JWKS local: claims exigidos, {@code typ},
+ * Validação pelo JWKS (ADR-0002, D3 e D8) com o decodificador real e um JWKS local: claims exigidos, {@code typ},
  * cache, {@code kid} desconhecido com limite de buscas, tolerância a queda e indisponibilidade.
  * <p>
  * {@link BadJwtException} vira 401; qualquer outra {@link JwtException} vira {@code AuthenticationServiceException},

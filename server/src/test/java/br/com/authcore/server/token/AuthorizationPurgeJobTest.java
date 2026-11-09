@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Autorizações vencidas somem; as que ainda têm algum token válido ficam (ADR-0003, D5 e R10). */
+/** Autorizações vencidas somem; as que ainda têm algum token válido ficam (ADR-0001, D6). */
 @AuthServerTest
 class AuthorizationPurgeJobTest {
 

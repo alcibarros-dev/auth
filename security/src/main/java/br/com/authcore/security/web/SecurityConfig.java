@@ -20,8 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
 
 /**
- * Cadeia de segurança stateless com JWT (ADR-0001, D9; ADR-0003, D6). As rotas públicas de negócio vêm dos módulos
- * ({@link PublicRoutes}, ADR-0002, D4); aqui ficam só as de infraestrutura. Tudo que não foi liberado explicitamente
+ * Cadeia de segurança stateless com JWT (ADR-0002, D2 e D3). As rotas públicas de negócio vêm dos
+ * módulos ({@link PublicRoutes}, ADR-0002, D1); aqui ficam só as de infraestrutura. Tudo que não foi liberado explicitamente
  * exige token em {@code /api/v1/**} e é negado no resto.
  */
 @Configuration(proxyBeanMethods = false)
@@ -32,7 +32,8 @@ class SecurityConfig {
             HttpSecurity http,
             ProblemResponseWriter problemWriter,
             List<PublicRoutes> publicRoutes,
-            @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled) throws Exception {
+            @Value("${springdoc.api-docs.enabled:false}") boolean apiDocsEnabled,
+            @Value("${app.jwt.resource-name:}") String resourceName) throws Exception {
         var entryPoint = new ProblemDetailAuthenticationEntryPoint(problemWriter);
         var accessDeniedHandler = new ProblemDetailAccessDeniedHandler(problemWriter);
         var failureHandler = new KeysUnavailableFailureHandler(entryPoint, problemWriter);
@@ -44,7 +45,7 @@ class SecurityConfig {
                 .requestCache(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
-                    // Actuator completo só existe na porta de gestão, que não é publicada externamente (D13).
+                    // Actuator completo só existe na porta de gestão, que não é publicada externamente (ADR-0002, D2).
                     auth.requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll();
                     // /livez e /readyz na porta pública.
                     auth.requestMatchers(EndpointRequest.toAdditionalPaths(WebServerNamespace.SERVER, HealthEndpoint.class))
@@ -66,7 +67,7 @@ class SecurityConfig {
                         .jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(entryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
-                        // Sem chave pública utilizável, 503 em vez do 500 padrão (ADR-0003, D6). A DSL não expõe o
+                        // Sem chave pública utilizável, 503 em vez do 500 padrão (ADR-0002, D4). A DSL não expõe o
                         // AuthenticationFailureHandler do filtro do bearer token.
                         .withObjectPostProcessor(new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
                             @Override
@@ -77,10 +78,13 @@ class SecurityConfig {
                         })
                         // O Spring Security 7 publica a metadata da RFC 9728 em /.well-known/oauth-protected-resource
                         // e a anuncia no WWW-Authenticate. O padrão declara tokens presos a certificado (mTLS), o que
-                        // não vale aqui.
-                        .protectedResourceMetadata(metadata -> metadata.protectedResourceMetadataCustomizer(
-                                builder -> builder.resourceName("Encurtador de URLs")
-                                        .tlsClientCertificateBoundAccessTokens(false))));
+                        // não vale aqui. O nome legível (ADR-0002, D7) (resource_name) é opcional e vem de cada API.
+                        .protectedResourceMetadata(metadata -> metadata.protectedResourceMetadataCustomizer(builder -> {
+                            builder.tlsClientCertificateBoundAccessTokens(false);
+                            if (!resourceName.isBlank()) {
+                                builder.resourceName(resourceName);
+                            }
+                        })));
         return http.build();
     }
 }

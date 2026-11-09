@@ -14,8 +14,9 @@ negócio: recebem o usuário autenticado pronto.
 | `support/` | `auth-support` | Respostas de erro RFC 9457, usadas pelo servidor e pelo `auth-security` | Jar, junto com o `auth-security` |
 | `coverage/` | `auth-coverage` | Sem código: o gate de cobertura de todos os módulos | — |
 
-Nasceu no projeto encurtador-url e saiu de lá pelo ADR-0007 daquele repositório; as decisões de projeto estão no
-ADR-0003 de lá, e as referências "ADR-000N, Dn" nos comentários do código apontam para os ADRs dele.
+Nasceu no projeto encurtador-url e saiu de lá pelo ADR-0007 daquele repositório. As decisões estão em
+[`docs/adr`](docs/adr/README.md): o servidor (ADR-0001), a validação dos tokens nas APIs (ADR-0002) e o repositório e
+a distribuição (ADR-0003). Os comentários do código citam esses ADRs.
 
 **O que ele faz**
 
@@ -122,6 +123,8 @@ for declarada pública, e o controller recebe o usuário por `@CurrentUser`. A A
 
 - `app.jwt.issuer` (o `AUTH_ISSUER` do servidor), `app.jwt.audience` (o `app.auth.audience` dele) e
   `app.jwt.jwk-set-uri` (o `/oauth2/jwks` dele, que pode ser um endereço interno);
+- opcionalmente, `app.jwt.resource-name`, o nome legível que a API publica em `/.well-known/oauth-protected-resource`
+  (RFC 9728);
 - um bean `UserIdResolver`, que traduz o `sub` do token no id do usuário da aplicação;
 - beans `PublicRoutes` com as rotas que não exigem token.
 

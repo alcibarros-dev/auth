@@ -14,7 +14,7 @@ import java.io.IOException;
 
 /**
  * 401 em RFC 9457. O entry point padrão do Resource Server só escreve o status e o {@code WWW-Authenticate}, sem
- * corpo: delegamos a ele o cabeçalho e escrevemos o ProblemDetail (ADR-0001, D9; corrige P5 e S4).
+ * corpo: delegamos a ele o cabeçalho e escrevemos o ProblemDetail (ADR-0002, D5).
  */
 final class ProblemDetailAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

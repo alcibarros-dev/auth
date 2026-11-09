@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Limites dos endpoints de protocolo (ADR-0003, D9; ADR-0004, fase WA): o cliente confidencial é limitado pelo
+ * Limites dos endpoints de protocolo (ADR-0001, D8): o cliente confidencial é limitado pelo
  * client_id, e o público, pelo IP.
  */
 @AuthServerTest

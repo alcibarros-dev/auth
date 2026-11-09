@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import java.time.Clock;
 
 /**
- * Validação de access tokens RS256 pelas chaves públicas do emissor (ADR-0003, D6), com o {@link Clock} da aplicação
- * (ADR-0001, D9). O {@code security} só valida: quem traduz o {@code sub} é o {@code UserIdResolver} (ADR-0002, D4).
+ * Validação de access tokens RS256 pelas chaves públicas do emissor (ADR-0002, D3), com o {@link Clock} da
+ * aplicação. O {@code security} só valida: quem traduz o {@code sub} é o {@code UserIdResolver} (ADR-0002, D1).
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(JwtValidationProperties.class)

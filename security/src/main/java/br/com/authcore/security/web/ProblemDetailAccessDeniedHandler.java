@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /**
  * 403 em RFC 9457 para usuário autenticado sem acesso à rota, com o cabeçalho do handler padrão do Resource Server
- * (ADR-0001, D9).
+ * (ADR-0002, D5).
  */
 final class ProblemDetailAccessDeniedHandler implements AccessDeniedHandler {
 

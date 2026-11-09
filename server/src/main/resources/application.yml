@@ -11,7 +11,7 @@ spring:
       enabled: false
   datasource:
     hikari:
-      # Tudo do servidor de autorização vive no schema "auth", com usuário de banco próprio fora do local (D8).
+      # Tudo do servidor de autorização vive no schema "auth", com usuário de banco próprio fora do local (ADR-0001, D6).
       schema: auth
       connection-timeout: 2000
   flyway:
@@ -36,7 +36,8 @@ server:
   shutdown: graceful
   servlet:
     session:
-      # Cookies de localhost não se separam por porta: o painel e o app usam outros nomes (D2).
+      # Cookies de localhost não se separam por porta: o frontend e a API do projeto usam
+      # outros nomes (ADR-0001, D2).
       cookie:
         name: AUTHSESSION
         http-only: true

@@ -23,7 +23,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 /**
- * Chaves públicas do emissor, buscadas no JWKS sob demanda (ADR-0003, D6): cache com renovação antecipada, até duas
+ * Chaves públicas do emissor, buscadas no JWKS sob demanda (ADR-0002, D4): cache com renovação antecipada, até duas
  * buscas fora de hora por janela (um {@code kid} desconhecido força uma), tolerância a queda e timeouts curtos. Nenhuma
  * requisição autenticada chama o servidor de autorização enquanto o cache vale.
  * <p>

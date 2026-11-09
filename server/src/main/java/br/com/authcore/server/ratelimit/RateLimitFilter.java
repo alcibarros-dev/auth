@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Aplica as regras de rate limit declaradas pelos módulos (ADR-0001, D11; ADR-0002, D5). No app, ele é registrado
- * como filtro servlet depois da cadeia do Spring Security: o usuário autenticado chega como {@code getUserPrincipal()},
- * e uma requisição já recusada com 401 ou 403 não conta no limite. No servidor de autorização, que responde os
- * endpoints de protocolo dentro da própria cadeia, ele vem antes dela e limita por IP e por cliente (ADR-0003, D9).
+ * Aplica as regras de rate limit (ADR-0001, D8). O servidor de autorização responde os endpoints de protocolo dentro
+ * da cadeia do Spring Security, por isso o filtro vem antes dela e limita por IP e por cliente.
  * <p>
  * O 429 é escrito aqui mesmo, em ProblemDetail: o {@code @RestControllerAdvice} não atua em filtros. O limite por
  * e-mail do login fica no serviço de login, que já recebe o e-mail normalizado do corpo.

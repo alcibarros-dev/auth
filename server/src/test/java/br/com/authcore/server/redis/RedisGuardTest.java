@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Máquina de estados do disjuntor, com relógio falso (ADR-0001, D7). */
+/** Máquina de estados do disjuntor, com relógio falso (ADR-0001, D8). */
 class RedisGuardTest {
 
     private static final Duration OPEN = Duration.ofSeconds(5);

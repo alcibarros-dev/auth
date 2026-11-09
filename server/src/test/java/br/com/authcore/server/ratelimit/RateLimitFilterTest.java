@@ -28,8 +28,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Qual regra vale para cada rota e quem é o sujeito (ADR-0001, D11), com o limitador falso. As regras são as mesmas
- * que os módulos declaram (ADR-0002, D5); o teste de integração confere as declarações reais.
+ * Qual regra vale para cada rota e quem é o sujeito (ADR-0001, D8), com o limitador falso. Os testes de integração
+ * conferem as regras reais.
  */
 class RateLimitFilterTest {
 

@@ -19,7 +19,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import java.util.ArrayList;
 import java.util.List;
 
-/** Chaves, autorizações e consentimentos do servidor de autorização (ADR-0003, D5 e D8). */
+/** Chaves, autorizações e consentimentos do servidor de autorização (ADR-0001, D5 e D6). */
 @Configuration(proxyBeanMethods = false)
 class TokenConfig {
 

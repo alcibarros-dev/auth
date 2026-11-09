@@ -12,7 +12,7 @@ import java.net.URI;
 import java.time.Duration;
 
 /**
- * O que a validação do token lê de {@code app.jwt.*} (ADR-0003, D6). O app só conhece as chaves públicas do emissor,
+ * O que a validação do token lê de {@code app.jwt.*} (ADR-0002, D3). A API só conhece as chaves públicas do emissor,
  * publicadas no JWKS: quem emite é o servidor de autorização.
  *
  * @param issuer    valor exigido no {@code iss}: a URL pública do servidor de autorização
@@ -32,10 +32,10 @@ record JwtValidationProperties(
         @Valid @DefaultValue Jwks jwks) {
 
     /**
-     * Cache das chaves públicas (ADR-0003, D6). Os valores padrão aguentam o servidor de autorização fora por um dia
+     * Cache das chaves públicas (ADR-0002, D4). Os valores padrão aguentam o servidor de autorização fora por um dia
      * sem recusar tokens assinados com chaves já conhecidas.
      *
-     * @param cacheTtl           validade das chaves em cache; uma chave retirada some do app nesse prazo
+     * @param cacheTtl           validade das chaves em cache; uma chave retirada some da API nesse prazo
      * @param refreshAhead       renova o cache quando faltar isso para ele expirar, sem bloquear requisições
      * @param minRefreshInterval janela do limite de buscas fora de hora (até duas por janela), como as de um
      *                           {@code kid} desconhecido

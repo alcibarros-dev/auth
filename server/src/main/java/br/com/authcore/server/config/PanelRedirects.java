@@ -7,7 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Para onde o cadastro e a troca de senha podem voltar (ADR-0004, D4 e fase WA): só para as origens do painel
+ * Para onde o cadastro e a troca de senha podem voltar (ADR-0001, D9): só para as origens da aplicação
  * configuradas. Qualquer outro endereço vira o padrão, para a volta não servir de redirecionamento aberto.
  */
 @Component

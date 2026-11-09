@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
- * Exceções de segurança lançadas no MVC voltam ao Spring Security, que escreve o 401 e o 403 (ADR-0002, D4). Os
- * filtros ficam de fora: são cobertos pelo teste de integração do app.
+ * Exceções de segurança lançadas no MVC voltam ao Spring Security, que escreve o 401 e o 403 (ADR-0002, D5). Os
+ * filtros ficam de fora: são cobertos pelos testes com a cadeia completa.
  */
 @WebMvcTest(controllers = SecurityExceptionAdviceTest.ProbeController.class)
 @AutoConfigureMockMvc(addFilters = false)

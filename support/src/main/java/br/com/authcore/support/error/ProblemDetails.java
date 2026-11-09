@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Fábrica de respostas RFC 9457 no formato da API: {@code type}, título em português e {@code code} estável
- * (ADR-0001, D12). Usada pelo handler global e pelos filtros que escrevem erros fora do MVC.
+ * (ADR-0001, D10; ADR-0002, D5). Usada pelos handlers e pelos filtros que escrevem erros fora do MVC.
  */
 public final class ProblemDetails {
 

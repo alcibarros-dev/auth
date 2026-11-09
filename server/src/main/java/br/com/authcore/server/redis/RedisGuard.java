@@ -13,7 +13,7 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
- * Disjuntor compartilhado por quem usa o Redis como acessório: cache e rate limit (ADR-0001, D7 e D11). O Redis
+ * Disjuntor compartilhado por quem usa o Redis como acessório: o rate limit (ADR-0001, D8). O Redis
  * nunca derruba uma requisição; no pior caso, custa um timeout.
  * <p>
  * Depois de {@code failureThreshold} falhas seguidas, o Redis é ignorado por {@code openDuration}. Passado esse tempo,

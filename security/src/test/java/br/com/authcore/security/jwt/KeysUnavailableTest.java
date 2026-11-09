@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Cadeia de segurança completa sem nenhuma chave utilizável (cache vazio e JWKS fora): 503 {@code AUTH_UNAVAILABLE}
- * com {@code Retry-After}, e não o 500 padrão do Spring Security (ADR-0003, D6 e R2). Token malformado e ausência de
+ * com {@code Retry-After}, e não o 500 padrão do Spring Security (ADR-0002, D4). Token malformado e ausência de
  * token continuam com 401, porque falham antes de qualquer busca de chave.
  */
 @SpringBootTest(properties = {

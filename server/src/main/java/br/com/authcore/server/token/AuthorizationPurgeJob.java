@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.time.Clock;
 
 /**
- * Apaga as autorizações cujos códigos e tokens já expiraram todos (ADR-0003, D5 e R10): a tabela guarda os valores
+ * Apaga as autorizações cujos códigos e tokens já expiraram todos (ADR-0001, D6): a tabela guarda os valores
  * em claro, e uma autorização vencida não serve para mais nada.
  */
 @Component

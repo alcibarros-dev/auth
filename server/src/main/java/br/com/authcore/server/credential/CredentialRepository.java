@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
 
-/** Acesso à tabela {@code credentials} do schema {@code auth} (ADR-0003, D8). */
+/** Acesso à tabela {@code credentials} do schema {@code auth} (ADR-0001, D6). */
 @Repository
 public class CredentialRepository {
 

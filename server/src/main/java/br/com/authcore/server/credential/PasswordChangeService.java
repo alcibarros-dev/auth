@@ -9,7 +9,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 
-/** Troca de senha (ADR-0001 RF03 e D9; ADR-0003, D9). */
+/** Troca de senha (ADR-0001, D7). */
 @Service
 public class PasswordChangeService {
 
@@ -31,8 +31,8 @@ public class PasswordChangeService {
     }
 
     /**
-     * Exige a senha atual e encerra todas as autorizações do usuário: os refresh tokens deixam de valer, e o painel
-     * leva o usuário ao login na renovação seguinte. O access token em uso vale até expirar (no máximo 15 minutos).
+     * Exige a senha atual e encerra todas as autorizações do usuário: os refresh tokens deixam de valer, e o
+     * cliente leva o usuário ao login na renovação seguinte. O access token em uso vale até expirar (no máximo 15 minutos).
      *
      * @return {@code false} se a senha atual não confere
      */

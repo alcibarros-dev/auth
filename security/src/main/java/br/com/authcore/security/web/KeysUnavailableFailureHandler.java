@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import java.io.IOException;
 
 /**
- * Falha na validação do bearer token (ADR-0003, D6). Sem chave pública utilizável (cache vazio e JWKS fora), o
+ * Falha na validação do bearer token (ADR-0002, D4). Sem chave pública utilizável (cache vazio e JWKS fora), o
  * Spring Security lança {@link AuthenticationServiceException}, que o handler padrão relança como 500: aqui ela vira
  * 503 {@code AUTH_UNAVAILABLE} com {@code Retry-After}. Token inválido continua com o 401 do entry point.
  */

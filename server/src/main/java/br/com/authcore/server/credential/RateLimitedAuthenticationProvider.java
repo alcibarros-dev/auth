@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
- * Login por formulário com os limites do ADR-0003 D9: por IP e por e-mail, consultados antes do bcrypt, que é lento de
+ * Login por formulário com os limites do ADR-0001 (D8): por IP e por e-mail, consultados antes do bcrypt, que é lento de
  * propósito. O formulário do Spring Security não passa por um serviço nosso, por isso os limites ficam aqui.
  * <p>
  * E-mail e senha são normalizados como no cadastro; senha acima de 72 bytes recebe a mesma resposta de senha errada,

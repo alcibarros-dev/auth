@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Claims dos tokens (ADR-0003, D5; ADR-0004, D4): sem isto, o SAS usaria como {@code sub} o nome do principal (o
+ * Claims dos tokens (ADR-0001, D5): sem isto, o SAS usaria como {@code sub} o nome do principal (o
  * e-mail) e como {@code aud} o {@code client_id}, e não incluiria o e-mail.
  * <ul>
  *     <li>{@code sub}: o identificador estável da credencial, em todos os tokens;</li>

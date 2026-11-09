@@ -12,7 +12,7 @@ import java.net.URI;
 
 /**
  * Escreve um {@link ProblemDetail} direto na resposta, para erros gerados em filtros, onde o
- * {@code @RestControllerAdvice} não atua (ADR-0001, D9, D11 e D12).
+ * {@code @RestControllerAdvice} não atua (ADR-0001, D10; ADR-0002, D5).
  * <p>
  * O formato é o mesmo do MVC: o mixin do Spring achata as propriedades extras ({@code code}, {@code errors}) no
  * nível raiz do JSON.

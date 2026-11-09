@@ -22,7 +22,7 @@ class SigningKeysTest {
         assertThat(key.toRSAPublicKey().getModulus()).isEqualTo(key.toRSAPrivateKey().getModulus());
     }
 
-    /** O kid muda a cada chave gerada: o app, com a chave anterior em cache, busca o JWKS de novo. */
+    /** O kid muda a cada chave gerada: a API, com a chave anterior em cache, busca o JWKS de novo. */
     @Test
     void withoutAFileGeneratesAKeyForThisProcessWithAUniqueKid() {
         RSAKey key = SigningKeys.load(new SigningKey("efemera", null));

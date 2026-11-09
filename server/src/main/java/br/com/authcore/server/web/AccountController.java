@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * Página inicial da conta, troca de senha (ADR-0003, D9) e confirmação de dispositivo (D4). A troca de senha volta
- * para o painel, se a volta pedida for de uma origem dele.
+ * Página inicial da conta, troca de senha (ADR-0001, D7) e confirmação de dispositivo (D4). A troca de senha
+ * volta para a aplicação, se a volta pedida for de uma origem dela (D9).
  */
 @Controller
 class AccountController {
@@ -55,7 +55,7 @@ class AccountController {
                           @RequestParam(name = "continue", required = false) @Nullable String continueTo,
                           Model model) {
         model.addAttribute("continueTo", redirects.isAllowed(continueTo) ? continueTo : null);
-        // Por usuário: força bruta da senha atual com uma sessão roubada (ADR-0001, D11).
+        // Por usuário: força bruta da senha atual com uma sessão roubada (ADR-0001, D8).
         if (limiter.tryAcquire("password-change", limit, user.getUsername())
                 instanceof RateLimiter.Decision.Rejected(var retryAfter)) {
             model.addAttribute("retryAfter", Math.max(1, retryAfter.toSeconds()));
@@ -72,7 +72,7 @@ class AccountController {
         return "password-changed";
     }
 
-    /** O usuário digita o código mostrado na CLI e confirma o acesso na página de consentimento (D9). */
+    /** O usuário digita o código mostrado na CLI e confirma o acesso na página de consentimento (ADR-0001, D4). */
     @GetMapping("/activate")
     String activate(@RequestParam(name = "user_code", required = false) @Nullable String userCode, Model model) {
         model.addAttribute("userCode", userCode == null ? "" : userCode);

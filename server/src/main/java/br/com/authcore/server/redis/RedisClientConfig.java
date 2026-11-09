@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Orçamento de latência do Redis (ADR-0001, D7): os timeouts curtos ficam no {@code application.yml}; aqui fica o
- * que só o código do Lettuce expressa. Só vale quando quem usa o {@code shared} também usa o Redis (ADR-0002, D11).
+ * Orçamento de latência do Redis (ADR-0001, D8): os timeouts curtos ficam no {@code application.yml}; aqui fica o
+ * que só o código do Lettuce expressa.
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(LettuceClientOptionsBuilderCustomizer.class)

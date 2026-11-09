@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Devolve ao Spring Security as exceções de segurança lançadas dentro do MVC, para que o entry point e o access denied
- * handler escrevam o 401 e o 403 (ADR-0002, D4). Vem antes do handler global do {@code shared}, que trataria qualquer
- * exceção como 500 e não conhece o Spring Security.
+ * handler escrevam o 401 e o 403 (ADR-0002, D5). Vem antes do handler global da aplicação, que trataria
+ * qualquer exceção como 500 e não conhece o Spring Security.
  */
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)

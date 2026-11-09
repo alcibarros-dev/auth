@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.web.authentication.AuthenticationConverter;
 
 /**
- * Autenticação de cliente público no fluxo de dispositivo (ADR-0003, D3). O conversor padrão do SAS para cliente
+ * Autenticação de cliente público no fluxo de dispositivo (ADR-0001, D3). O conversor padrão do SAS para cliente
  * público só aceita a requisição que traz {@code code_verifier}; o cliente público do fluxo de dispositivo só manda o
  * {@code client_id}, em {@code /oauth2/device_authorization} e na troca do {@code device_code}.
  */

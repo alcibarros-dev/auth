@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
- * Regra de rate limit que um módulo declara para as próprias rotas, num bean (ADR-0002, D5). O limite vem de
+ * Regra de rate limit de um grupo de rotas (ADR-0001, D8). O limite vem de
  * {@code app.rate-limit.<nome>}.
  *
  * @param name    nome da regra, também usado como tag das métricas

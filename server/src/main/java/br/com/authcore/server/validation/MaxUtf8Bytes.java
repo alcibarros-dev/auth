@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Limita o tamanho do texto em bytes UTF-8, não em caracteres. Existe por causa do bcrypt, que recusa senhas acima
- * de 72 bytes: com acentos ou emojis esse limite chega antes do limite de caracteres (ADR-0001, D9).
+ * de 72 bytes: com acentos ou emojis esse limite chega antes do limite de caracteres (ADR-0001, D7).
  */
 @Documented
 @Constraint(validatedBy = MaxUtf8BytesValidator.class)

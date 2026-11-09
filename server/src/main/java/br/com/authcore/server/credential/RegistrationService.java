@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Cadastro de contas (ADR-0001 RF01 e D9; ADR-0003, D8 e D9). */
+/** Cadastro de contas (ADR-0001, D6 e D7). */
 @Service
 public class RegistrationService {
 
@@ -28,9 +28,9 @@ public class RegistrationService {
 
     /**
      * Recebe e-mail e senha já normalizados e validados. Usuário novo recebe um UUID como {@code sub}, que nunca
-     * colide com o {@code sub} numérico dos usuários importados (D8).
+     * colide com o {@code sub} numérico dos usuários importados (ADR-0001, D6).
      *
-     * @return a credencial criada, ou vazio se o e-mail já tem conta (enumeração aceita, ADR-0001 R7)
+     * @return a credencial criada, ou vazio se o e-mail já tem conta (enumeração aceita, ADR-0001, D7)
      */
     public Optional<Credential> register(String email, String password) {
         String passwordHash = passwordEncoder.encode(password);

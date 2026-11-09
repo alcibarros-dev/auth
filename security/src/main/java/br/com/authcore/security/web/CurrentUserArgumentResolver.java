@@ -16,7 +16,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * Resolve {@code @CurrentUser long userId} a partir do token validado, pelo {@link UserIdResolver} do provedor de
- * identidade (ADR-0002, D3). As exceções lançadas aqui são de autenticação: o Spring Security as transforma em 401.
+ * identidade (ADR-0002, D1). As exceções lançadas aqui são de autenticação: o Spring Security as transforma em 401.
  */
 final class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 

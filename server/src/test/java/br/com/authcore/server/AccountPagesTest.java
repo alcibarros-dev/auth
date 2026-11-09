@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Cadastro, login e troca de senha pelas páginas (ADR-0003, D9; ADR-0004, D4). */
+/** Cadastro, login e troca de senha pelas páginas (ADR-0001, D7 e D9). */
 @AuthServerTest
 class AccountPagesTest {
 
@@ -66,7 +66,7 @@ class AccountPagesTest {
                 .andExpect(content().string(containsString(normalized)))
                 .andExpect(content().string(containsString("Conta de teste")));
 
-        // O login seguinte do painel é silencioso e emite o id_token, que exige o auth_time do login automático.
+        // O login seguinte do cliente é silencioso e emite o id_token, que exige o auth_time do login automático.
         OAuthFlows.Tokens tokens = flows.authorizationCode(session);
         assertThat(flows.decode(tokens.idToken()).getClaimAsInstant("auth_time")).isNotNull();
     }

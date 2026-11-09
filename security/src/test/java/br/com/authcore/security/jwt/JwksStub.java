@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * JWKS de teste num servidor HTTP local, no lugar do servidor de autorização (ADR-0003, D12): conta as buscas e pode
+ * JWKS de teste num servidor HTTP local, no lugar do servidor de autorização (ADR-0002, D8): conta as buscas e pode
  * ficar fora do ar. Também assina tokens com as chaves que gera.
  */
 final class JwksStub implements AutoCloseable {

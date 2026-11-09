@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Duration;
 
-/** 429 com {@code Retry-After}, no mesmo formato no filtro e no handler global (ADR-0001, D11 e D12). */
+/** 429 com {@code Retry-After}, no mesmo formato no filtro e nas páginas (ADR-0001, D8). */
 public class RateLimitExceededException extends ApiException {
 
     public static final String RATE_LIMITED = "RATE_LIMITED";

@@ -3,7 +3,7 @@ package br.com.authcore.server.credential;
 import java.util.Locale;
 
 /**
- * Regras do e-mail de login (ADR-0001, D9): sem espaços nas pontas, em minúsculas e com até 254 caracteres.
+ * Regras do e-mail de login (ADR-0001, D7): sem espaços nas pontas, em minúsculas e com até 254 caracteres.
  */
 public final class EmailAddress {
 

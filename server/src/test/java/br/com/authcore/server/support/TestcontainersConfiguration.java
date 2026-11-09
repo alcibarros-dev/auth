@@ -7,7 +7,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/** PostgreSQL e Redis reais, nas mesmas versões do compose (ADR-0001, D14). */
+/** PostgreSQL e Redis reais, nas mesmas versões do compose (ADR-0001, D11). */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 

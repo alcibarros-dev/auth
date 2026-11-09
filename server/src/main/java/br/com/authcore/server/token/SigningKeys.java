@@ -23,11 +23,11 @@ import java.util.Base64;
 import java.util.HexFormat;
 
 /**
- * Lê a chave RSA de assinatura de um PEM PKCS#8 (ADR-0003, D5). A chave pública é derivada da privada.
+ * Lê a chave RSA de assinatura de um PEM PKCS#8 (ADR-0001, D5). A chave pública é derivada da privada.
  * <p>
  * Sem arquivo, gera uma chave na subida: serve para experimentar a stack, mas todo token deixa de valer quando o
- * processo reinicia. O {@code kid} dela ganha um sufixo aleatório: com o mesmo {@code kid} da chave anterior, o app,
- * que guarda as chaves em cache, recusaria os tokens novos sem buscar o JWKS de novo (ADR-0003, D6).
+ * processo reinicia. O {@code kid} dela ganha um sufixo aleatório: com o mesmo {@code kid} da chave anterior, a API,
+ * que guarda as chaves em cache, recusaria os tokens novos sem buscar o JWKS de novo (ADR-0002, D4).
  */
 final class SigningKeys {
 

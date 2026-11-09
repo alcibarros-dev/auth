@@ -5,7 +5,7 @@ import br.com.authcore.server.validation.MaxUtf8BytesValidator;
 import java.text.Normalizer;
 
 /**
- * Política de senha (ADR-0001, D9): normalizada para NFC, de 8 a 64 caracteres e no máximo 72 bytes em UTF-8.
+ * Política de senha (ADR-0001, D7): normalizada para NFC, de 8 a 64 caracteres e no máximo 72 bytes em UTF-8.
  */
 public final class PasswordPolicy {
 

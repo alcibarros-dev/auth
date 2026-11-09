@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.Duration;
 
 /**
- * Disjuntor do Redis ({@code app.redis-guard.*}, ADR-0001, D7).
+ * Disjuntor do Redis ({@code app.redis-guard.*}, ADR-0001, D8).
  *
  * @param failureThreshold falhas seguidas que abrem o disjuntor
  * @param openDuration     quanto tempo o Redis é ignorado antes de uma chamada de teste

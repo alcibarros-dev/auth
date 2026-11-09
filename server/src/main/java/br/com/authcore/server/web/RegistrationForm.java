@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Formulário de cadastro, normalizado ao receber os valores: e-mail sem espaços e em minúsculas, senha em NFC
- * (ADR-0001, D9). É uma classe com getters, e não um record, porque o Thymeleaf e o {@code BindingResult} leem os
+ * (ADR-0001, D7). É uma classe com getters, e não um record, porque o Thymeleaf e o {@code BindingResult} leem os
  * campos como propriedades de JavaBean.
  */
 public class RegistrationForm {

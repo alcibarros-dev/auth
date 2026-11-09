@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Cadastro (ADR-0003, D9; ADR-0004, D4): ao fim, o usuário fica logado e volta ao painel, se a volta pedida for de
- * uma origem do painel. O login seguinte do painel é silencioso.
+ * Cadastro (ADR-0001, D7 e D9): ao fim, o usuário fica logado e volta à aplicação, se a volta pedida for de uma
+ * origem dela. O login seguinte do cliente é silencioso.
  */
 @Controller
 class RegistrationController {
@@ -86,8 +86,8 @@ class RegistrationController {
     }
 
     /**
-     * A volta pedida pelo painel, se for de uma origem dele; senão, o pedido de autorização que levou à página de
-     * login (o usuário clicou em "Criar conta" no meio de um login OAuth); senão, o painel.
+     * A volta pedida pela aplicação, se for de uma origem dela; senão, o pedido de autorização que levou à página de
+     * login (o usuário clicou em "Criar conta" no meio de um login OAuth); senão, a aplicação.
      */
     private String destination(@Nullable String continueTo, HttpServletRequest request, HttpServletResponse response) {
         if (redirects.isAllowed(continueTo)) {
